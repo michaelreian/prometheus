@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.7
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B9BE4002-B03F-44B5-9475-FE85857F5DD0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prometheus.Api", "src\Prometheus.Api\Prometheus.Api.csproj", "{8DC6649E-2A1B-4622-9C2C-8C7CBD2069C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prometheus.Daemon", "src\Prometheus.Daemon\Prometheus.Daemon.csproj", "{80F95D3B-931D-4ACB-A2E5-2A12AE37EE40}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prometheus.Core", "src\Prometheus.Core\Prometheus.Core.csproj", "{80B976BA-61FA-4F93-9B84-D556974F8777}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8DC6649E-2A1B-4622-9C2C-8C7CBD2069C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DC6649E-2A1B-4622-9C2C-8C7CBD2069C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DC6649E-2A1B-4622-9C2C-8C7CBD2069C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DC6649E-2A1B-4622-9C2C-8C7CBD2069C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80F95D3B-931D-4ACB-A2E5-2A12AE37EE40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80F95D3B-931D-4ACB-A2E5-2A12AE37EE40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80F95D3B-931D-4ACB-A2E5-2A12AE37EE40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80F95D3B-931D-4ACB-A2E5-2A12AE37EE40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80B976BA-61FA-4F93-9B84-D556974F8777}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80B976BA-61FA-4F93-9B84-D556974F8777}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80B976BA-61FA-4F93-9B84-D556974F8777}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80B976BA-61FA-4F93-9B84-D556974F8777}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8DC6649E-2A1B-4622-9C2C-8C7CBD2069C9} = {B9BE4002-B03F-44B5-9475-FE85857F5DD0}
+		{80F95D3B-931D-4ACB-A2E5-2A12AE37EE40} = {B9BE4002-B03F-44B5-9475-FE85857F5DD0}
+		{80B976BA-61FA-4F93-9B84-D556974F8777} = {B9BE4002-B03F-44B5-9475-FE85857F5DD0}
+	EndGlobalSection
+EndGlobal
