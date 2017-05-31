@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Threading;
+using Prometheus.Core;
 
 namespace Prometheus.Daemon
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static int Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var host = new ServiceHost();
+
+            return host.Run();
         }
     }
 }

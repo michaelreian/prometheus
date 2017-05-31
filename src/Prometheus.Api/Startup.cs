@@ -1,12 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using NJsonSchema;
+using NSwag.AspNetCore;
+using Prometheus.Core;
 
 namespace Prometheus.Api
 {
@@ -16,26 +23,48 @@ namespace Prometheus.Api
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddJsonFile("Settings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"Settings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
 
         public IConfigurationRoot Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            // Add framework services.
             services.AddMvc();
+
+            services.AddOptions();
+            services.Configure<GeneralSettings>(options => { Configuration.GetSection("General").Bind(options); });
+            services.Configure<RabbitMQConnectionSettings>(options => { Configuration.GetSection("RabbitMQConnection").Bind(options); });
+
+            var builder = new ContainerBuilder();
+
+            builder.Populate(services);
+
+            builder.RegisterModule<CoreAutofacModule>();
+            builder.RegisterModule<ApiAutofacModule>();
+
+            var container = builder.Build();
+
+            return new AutofacServiceProvider(container);
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IOptions<GeneralSettings> generalSettings)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+
+            app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, new SwaggerUiOwinSettings
+            {
+                DefaultPropertyNameHandling = PropertyNameHandling.CamelCase,
+                DefaultEnumHandling = EnumHandling.String,
+                Version = generalSettings.Value.ApplicationVersion,
+                Title = generalSettings.Value.ApplicationName,
+                IsAspNetCore = true,
+                ValidateSpecification = true,
+            });
 
             app.UseMvc();
         }
