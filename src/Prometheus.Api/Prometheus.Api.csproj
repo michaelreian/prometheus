@@ -23,5 +23,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Prometheus.Core\Prometheus.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Dockerfile">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

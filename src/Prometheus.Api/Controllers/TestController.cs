@@ -16,5 +16,14 @@ namespace Prometheus.Api.Controllers
 
             publisher.Publish(message);
         }
+
+        [Route(""), HttpGet]
+        public IActionResult Index(string message)
+        {
+            return Ok(new
+            {
+                Online = true
+            });
+        }
     }
 }

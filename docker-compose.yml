@@ -1,5 +1,42 @@
 version: '2'
 services:
+  proxy:
+    build:
+      context:  ./artifacts/proxy
+      dockerfile: Dockerfile
+    ports:
+      - "8088:8088"
+    links:
+      - ui
+      - api
+  ui:
+    build:
+      context:  ./artifacts/ui
+      dockerfile: Dockerfile
+    expose:
+      - "8080"
+    ports:
+      - "4999:8080"
+  api:
+    build:
+      context:  ./artifacts/api
+      dockerfile: Dockerfile
+    environment:
+      RabbitMQConnection__HostName: "rabbit"
+    expose:
+      - "5000"
+    ports:
+      - "5000:5000"
+    links:
+      - rabbit
+  daemon:
+    build:
+      context:  ./artifacts/daemon
+      dockerfile: Dockerfile
+    environment:
+      RabbitMQConnection__HostName: "rabbit"
+    links:
+      - rabbit
   rabbit:
     image: "rabbitmq:3.6.10-management"
     hostname: "rabbit"
@@ -11,9 +48,3 @@ services:
     ports:
       - "15672:15672"
       - "5672:5672"
-    labels:
-      NAME: "rabbitmq1"
-#    volumes:
-      #- "./enabled_plugins:/etc/rabbitmq/enabled_plugins"
-      #- "./rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro"
-      #- "./autocluster-0.4.1.ez:/usr/lib/rabbitmq/lib/rabbitmq_server-3.5.5/plugins/autocluster-0.4.1.ez"
