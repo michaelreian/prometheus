@@ -15,11 +15,11 @@ namespace Prometheus.Core
 
     public class ServiceHost : IServiceHost
     {
-        private readonly IComponentContext context;
+        private readonly IBus bus;
 
-        public ServiceHost(IComponentContext context)
+        public ServiceHost(IBus bus)
         {
-            this.context = context;
+            this.bus = bus;
         }
 
         public int Run()
@@ -67,6 +67,8 @@ namespace Prometheus.Core
 
             //    manualResetEvent.WaitOne();
             //}
+
+            this.bus.Initialize();
 
             Console.WriteLine("Application started. Press Ctrl+C to shut down.");
 

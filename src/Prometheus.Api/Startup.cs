@@ -35,9 +35,7 @@ namespace Prometheus.Api
         {
             services.AddMvc();
 
-            services.AddOptions();
-            services.Configure<GeneralSettings>(options => { Configuration.GetSection("General").Bind(options); });
-            services.Configure<RabbitMQConnectionSettings>(options => { Configuration.GetSection("RabbitMQConnection").Bind(options); });
+            services.AddSettings(Configuration);
 
             var builder = new ContainerBuilder();
 

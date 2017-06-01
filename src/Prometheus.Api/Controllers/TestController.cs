@@ -10,12 +10,20 @@ namespace Prometheus.Api.Controllers
 {
     public class TestController : Controller
     {
-        [Route("publish"), HttpPost]
-        public IActionResult Publish(string message)
-        {
-            var publisher = new Publisher();
+        private readonly IBus bus;
 
-            publisher.Publish(message);
+        public TestController(IBus bus)
+        {
+            this.bus = bus;
+        }
+
+        [Route("hello"), HttpPost]
+        public IActionResult Hello(string name)
+        {
+            this.bus.Publish(new HelloWorldEvent
+            {
+                Name = "Michael"
+            });
 
             return Ok();
         }

@@ -3,10 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp1.1</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Include="wwwroot\Interface.cs" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.6.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.1.0" />

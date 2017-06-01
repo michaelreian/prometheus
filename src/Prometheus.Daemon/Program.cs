@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading;
 using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Prometheus.Core;
 
 namespace Prometheus.Daemon
@@ -18,13 +20,19 @@ namespace Prometheus.Daemon
 
             var configuration = builder.Build();
 
+            var services = new ServiceCollection();
+
+            services.AddSettings(configuration);
+
             var containerBuilder = new ContainerBuilder();
 
             containerBuilder.RegisterModule<DaemonAutofacModule>();
 
+            containerBuilder.Populate(services);
+
             var container = containerBuilder.Build();
 
-            var host = new ServiceHostBuilder(configuration)
+            var host = new ServiceHostBuilder()
                 .Build(container);
 
             return host.Run();

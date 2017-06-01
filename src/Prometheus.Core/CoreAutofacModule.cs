@@ -16,7 +16,7 @@ namespace Prometheus.Core
                 .AsSelf()
                 .AsImplementedInterfaces();
 
-            //builder.AddMediatR(assembly);
+            builder.RegisterType<Bus>().As<IBus>().SingleInstance();
 
             builder.Register(x =>
             {

@@ -1,11 +1,11 @@
 ﻿{
-  "General": {
+  "RabbitMQConnection": {
     "HostName": "localhost",
     "Port": 5672,
     "UserName": "rabbitmq",
     "Password": "rabbitmq"
   },
-  "RabbitMQConnection": {
+  "General": {
     "ApplicationName": "Prometheus",
     "ApplicationVersion": "0.0.1"
   },
