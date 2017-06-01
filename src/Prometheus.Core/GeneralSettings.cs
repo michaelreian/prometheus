@@ -4,6 +4,8 @@
     {
         public string ApplicationName { get; set; }
         public string ApplicationVersion { get; set; }
+        public string SwaggerRoute { get; set; }
+        public string SwaggerUiRoute { get; set; }
     }
 
     public class RabbitMQConnectionSettings

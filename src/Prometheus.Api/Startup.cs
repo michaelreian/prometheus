@@ -61,6 +61,8 @@ namespace Prometheus.Api
                 DefaultEnumHandling = EnumHandling.String,
                 Version = generalSettings.Value.ApplicationVersion,
                 Title = generalSettings.Value.ApplicationName,
+                SwaggerRoute = generalSettings.Value.SwaggerRoute,
+                SwaggerUiRoute = generalSettings.Value.SwaggerUiRoute,
                 IsAspNetCore = true,
                 ValidateSpecification = true,
             });

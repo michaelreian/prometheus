@@ -1,7 +1,9 @@
 ﻿{
   "General": {
     "ApplicationName": "Prometheus",
-    "ApplicationVersion": "0.0.1"
+    "ApplicationVersion": "0.0.1",
+    "SwaggerRoute": "/swagger.json",
+    "SwaggerUiRoute": "/swagger"
   },
   "RabbitMQConnection": {
     "HostName": "localhost",
