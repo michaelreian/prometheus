@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Autofac;
+using MediatR;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 
@@ -15,7 +16,7 @@ namespace Prometheus.Core
                 .AsSelf()
                 .AsImplementedInterfaces();
 
-            builder.AddMediatR(assembly);
+            //builder.AddMediatR(assembly);
 
             builder.Register(x =>
             {

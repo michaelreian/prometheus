@@ -2,13 +2,26 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using Autofac;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace Prometheus.Core
 {
-    public class ServiceHost
+    public interface IServiceHost
     {
+        int Run();
+    }
+
+    public class ServiceHost : IServiceHost
+    {
+        private readonly IComponentContext context;
+
+        public ServiceHost(IComponentContext context)
+        {
+            this.context = context;
+        }
+
         public int Run()
         {
             var manualResetEvent = new ManualResetEvent(false);

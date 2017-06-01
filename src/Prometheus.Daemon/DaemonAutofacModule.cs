@@ -5,15 +5,15 @@ using Microsoft.Extensions.Options;
 using Prometheus.Core;
 using RabbitMQ.Client;
 
-namespace Prometheus.Api
+namespace Prometheus.Daemon
 {
-    public class ApiAutofacModule : Autofac.Module
+    public class DaemonAutofacModule : Autofac.Module
     {
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterModule<CoreAutofacModule>();
 
-            var assembly = typeof(ApiAutofacModule).GetTypeInfo().Assembly;
+            var assembly = typeof(DaemonAutofacModule).GetTypeInfo().Assembly;
 
             builder.RegisterAssemblyTypes(assembly)
                 .AsSelf()

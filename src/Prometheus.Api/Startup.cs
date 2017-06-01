@@ -43,7 +43,6 @@ namespace Prometheus.Api
 
             builder.Populate(services);
 
-            builder.RegisterModule<CoreAutofacModule>();
             builder.RegisterModule<ApiAutofacModule>();
 
             var container = builder.Build();
