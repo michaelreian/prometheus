@@ -1,8 +1,10 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Autofac;
 using MediatR;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
+using Serilog;
 
 namespace Prometheus.Core
 {
@@ -15,6 +17,8 @@ namespace Prometheus.Core
             builder.RegisterAssemblyTypes(assembly)
                 .AsSelf()
                 .AsImplementedInterfaces();
+
+            builder.Register(x => Log.Logger).As<ILogger>().SingleInstance();
 
             builder.RegisterType<Bus>().As<IBus>().SingleInstance();
 

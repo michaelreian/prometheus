@@ -5,6 +5,7 @@ using System.Threading;
 using Autofac;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using Serilog;
 
 namespace Prometheus.Core
 {
@@ -16,14 +17,18 @@ namespace Prometheus.Core
     public class ServiceHost : IServiceHost
     {
         private readonly IBus bus;
+        private readonly ILogger logger;
 
-        public ServiceHost(IBus bus)
+        public ServiceHost(IBus bus, ILogger logger)
         {
             this.bus = bus;
+            this.logger = logger;
         }
 
         public int Run()
         {
+            this.logger.Debug("Hosting starting...");
+
             var manualResetEvent = new ManualResetEvent(false);
 
             Console.CancelKeyPress += (sender, eventArgs) => {
@@ -31,44 +36,9 @@ namespace Prometheus.Core
                 manualResetEvent.Set();
             };
 
-            //var factory = new ConnectionFactory() { HostName = "localhost", Port = 5672, UserName = "rabbitmq", Password = "rabbitmq" };
-            //using (var connection = factory.CreateConnection())
-            //using (var channel = connection.CreateModel())
-            //{
-            //    channel.QueueDeclare(queue: "task_queue",
-            //        durable: true,
-            //        exclusive: false,
-            //        autoDelete: false,
-            //        arguments: null);
+            this.bus.Start();
 
-            //    channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-
-            //    Console.WriteLine(" [*] Waiting for messages.");
-
-            //    var consumer = new EventingBasicConsumer(channel);
-            //    consumer.Received += (model, ea) =>
-            //    {
-            //        var body = ea.Body;
-            //        var message = Encoding.UTF8.GetString(body);
-            //        Console.WriteLine(" [x] Received {0}", message);
-
-            //        int dots = message.Split('.').Length - 1;
-            //        Thread.Sleep(dots * 1000);
-
-            //        Console.WriteLine(" [x] Done");
-
-            //        channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
-            //    };
-            //    channel.BasicConsume(queue: "task_queue",
-            //        noAck: false,
-            //        consumer: consumer);
-
-            //    Console.WriteLine("Application started. Press Ctrl+C to shut down.");
-
-            //    manualResetEvent.WaitOne();
-            //}
-
-            this.bus.Initialize();
+            this.logger.Debug("Hosting started...");
 
             Console.WriteLine("Application started. Press Ctrl+C to shut down.");
 

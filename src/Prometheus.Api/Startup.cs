@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using NJsonSchema;
 using NSwag.AspNetCore;
 using Prometheus.Core;
+using Serilog;
 
 namespace Prometheus.Api
 {
@@ -26,7 +27,12 @@ namespace Prometheus.Api
                 .AddJsonFile("Settings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"Settings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
+
             Configuration = builder.Build();
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(Configuration)
+                .CreateLogger();
         }
 
         public IConfigurationRoot Configuration { get; }
@@ -40,7 +46,7 @@ namespace Prometheus.Api
             var builder = new ContainerBuilder();
 
             builder.Populate(services);
-
+            
             builder.RegisterModule<ApiAutofacModule>();
 
             var container = builder.Build();
@@ -50,8 +56,8 @@ namespace Prometheus.Api
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IOptions<GeneralSettings> generalSettings)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
+            //loggerFactory.AddSerilog();
+            //loggerFactory.AddDebug();
 
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, new SwaggerUiOwinSettings
             {

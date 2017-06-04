@@ -20,9 +20,31 @@ namespace Prometheus.Api.Controllers
         [Route("hello"), HttpPost]
         public IActionResult Hello(string name)
         {
-            this.bus.Publish(new HelloWorldEvent
+            this.bus.Send(new HelloWorldEvent
             {
-                Name = "Michael"
+                Name = name
+            });
+
+            return Ok();
+        }
+
+        [Route("ping"), HttpPost]
+        public IActionResult Ping()
+        {
+            this.bus.Send(new PingEvent
+            {
+                Timestamp = DateTime.UtcNow
+            });
+
+            return Ok();
+        }
+
+        [Route("do"), HttpPost]
+        public IActionResult Do(string something)
+        {
+            this.bus.Send(new DoSomethingCommand
+            {
+                Something = something
             });
 
             return Ok();

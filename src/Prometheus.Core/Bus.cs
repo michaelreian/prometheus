@@ -6,18 +6,56 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Polly;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Exceptions;
+using Serilog;
 
 namespace Prometheus.Core
 {
+    public enum ExchangeType
+    {
+        Direct,
+        Topic,
+        Headers,
+        Fanout
+    }
+
+    public class RouteSettingsAttribute : Attribute
+    {
+        public string Exchange { get; set; }
+        public string Key { get; set; }
+        public Dictionary<string, object> Arguments { get; set; } = null;
+    }
+
+    public class MessageIDAttribute : Attribute
+    {
+
+    }
+
+    public class CorrelationIDAttribute : Attribute
+    {
+
+    }
+
     public class QueueSettingsAttribute : Attribute
     {
-        public string Name { get; set; } = "";
+        public string Name { get; set; }
         public bool Exclusive { get; set; } = false;
         public bool Durable { get; set; } = true;
         public bool AutoDelete { get; set; } = true;
+        public Dictionary<string, object> Arguments { get; set; } = null;
+    }
+
+    public class ExchangeSettingsAttribute : Attribute
+    {
+        public string Name { get; set; }
+        public ExchangeType Type { get; set; } = ExchangeType.Direct;
+        public bool Durable { get; set; } = false;
+        public bool AutoDelete { get; set; } = false;
         public Dictionary<string, object> Arguments { get; set; } = null;
     }
 
@@ -26,13 +64,25 @@ namespace Prometheus.Core
         
     }
 
+    public interface ICommand : IMessage
+    {
+
+    }
+
+    public interface IEvent : IMessage
+    {
+
+    }
+
     public class ConsumerContext<TMessage>
     {
-        public TMessage Message { get; set; }
+        public TMessage Message { get; }
+        public BasicDeliverEventArgs Event { get; }
 
-        public ConsumerContext(TMessage message)
+        public ConsumerContext(BasicDeliverEventArgs e)
         {
-            Message = message;
+            this.Message = e.Body.ToObject<TMessage>();
+            this.Event = e;
         }
     }
 
@@ -41,74 +91,144 @@ namespace Prometheus.Core
         void Handle(ConsumerContext<TMessage> context);
     }
 
-    [QueueSettings]
-    public class HelloWorldEvent : IMessage
+
+    public class DoSomethingCommand : ICommand
     {
-        public string Name { get; set; }
+        public string Something { get; set; }
     }
 
-    public abstract class Consumer<TMessage> : IConsumer<TMessage> where TMessage : IMessage
+    public class DoSomethingCommandConsumer : Consumer<DoSomethingCommand>
     {
-
-        protected void Invoke(TMessage message)
+        public override void Handle(ConsumerContext<DoSomethingCommand> context)
         {
-            var consumerContext = new ConsumerContext<TMessage>(message);
-            this.Handle(consumerContext);
+            Console.WriteLine($"Doing {context.Message.Something}...");
         }
+    }
 
-        public abstract void Handle(ConsumerContext<TMessage> context);
+    [ExchangeSettings(Type = ExchangeType.Fanout)]
+    [RouteSettings(Key = "")]
+    public class HelloWorldEvent : IEvent
+    {
+        public string Name { get; set; }
     }
 
     public class HelloWorldEventConsumer : Consumer<HelloWorldEvent>
     {
         public override void Handle(ConsumerContext<HelloWorldEvent> context)
         {
-            Console.WriteLine($"Hello, {context.Message.Name}!");
+            Console.WriteLine($"Received {context.Message.Name}. AppID: {context.Event.BasicProperties.AppId}");
         }
     }
 
+    public class PingEvent : IEvent
+    {
+        public DateTime Timestamp { get; set; }
+    }
+
+    public class PingEventConsumer : Consumer<PingEvent>
+    {
+        public override void Handle(ConsumerContext<PingEvent> context)
+        {
+            Console.WriteLine($"Pinged in {DateTime.UtcNow.Subtract(context.Message.Timestamp)}");
+        }
+    }
+
+    public abstract class Consumer<TMessage> : IConsumer<TMessage> where TMessage : IMessage
+    {
+
+        protected void Invoke(BasicDeliverEventArgs e)
+        {
+            var consumerContext = new ConsumerContext<TMessage>(e);
+            this.Handle(consumerContext);
+        }
+
+        public abstract void Handle(ConsumerContext<TMessage> context);
+    }
+
+
+
     public interface IBus
     {
-        void Initialize();
-        void Publish<TMessage>(TMessage message) where TMessage : IMessage;
+        void Start();
+        void Send<TMessage>(TMessage message) where TMessage : IMessage;
     }
 
     public class Bus : IBus
     {
-        private readonly IDurableConnection connection;
+        private readonly IConnectionFactory connectionFactory;
+        private readonly IOptions<ApplicationSettings> applicationSettings;
         private readonly IComponentContext container;
+        private readonly ILogger logger;
 
+        private IConnection connection = null;
         private IModel channel = null;
 
-        public Bus(IDurableConnection connection, IComponentContext container)
+        public Bus(IConnectionFactory connectionFactory, IOptions<ApplicationSettings> applicationSettings,
+            IComponentContext container, ILogger logger)
         {
-            this.connection = connection;
+            this.connectionFactory = connectionFactory;
+            this.applicationSettings = applicationSettings;
             this.container = container;
+            this.logger = logger;
         }
 
         private void EnsureConnected()
         {
+            if (this.connection == null)
+            {
+                this.logger.Debug("Creating connection...");
+
+                Policy
+                    .Handle<BrokerUnreachableException>()
+                    .WaitAndRetry(3,
+                        attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)),
+                        (exception, duration, attempt, context) =>
+                        {
+                            this.logger.Warning(exception,
+                                "Unable to create connection. Attempt #{Attempt} failed. Sleeping for {Duration}ms",
+                                attempt, duration.TotalMilliseconds);
+
+                        })
+                    .Execute(() =>
+                    {
+                        this.connection = this.connectionFactory.CreateConnection();
+                    });
+            }
+
             if (this.channel == null)
             {
-                this.channel = this.connection.CreateModel();
+                this.logger.Debug("Creating channel...");
+                this.channel = connection.CreateModel();
             }
         }
 
-
-
-        public void Initialize()
+        private IEnumerable<Type> GetMessageTypes()
         {
-            this.EnsureConnected();
-
             var messages = this.container.Resolve<IMessage[]>();
 
-            Console.WriteLine("Messages: {0}", messages.Length);
+            return messages.Select(x => x.GetType());
+        }
 
-            foreach (var message in messages)
+        private IEnumerable GetConsumers(Type message)
+        {
+            return (IEnumerable) this.container.Resolve(
+                typeof(IEnumerable<>).MakeGenericType(typeof(IConsumer<>).MakeGenericType(message)));
+        }
+
+
+        public void Start()
+        {
+            this.logger.Debug("Bus starting...");
+
+            this.EnsureConnected();
+
+            this.logger.Debug("Registering messages...");
+
+            var messageTypes = this.GetMessageTypes();
+
+            foreach (var messageType in messageTypes)
             {
-                var messageType = message.GetType();
-
-                Console.WriteLine("messageType: {0}", messageType.FullName);
+                this.logger.Debug("Registering {MessageType}", messageType.FullName);
 
                 var queueSettings = messageType.GetTypeInfo().GetCustomAttribute<QueueSettingsAttribute>();
 
@@ -117,90 +237,109 @@ namespace Prometheus.Core
                     queueSettings = new QueueSettingsAttribute();
                 }
 
-                var name = queueSettings.Name;
+                var queueName = queueSettings.Name;
 
-                if (string.IsNullOrEmpty(name))
+                if (string.IsNullOrEmpty(queueName))
                 {
-                    name = messageType.FullName.ToLower();
+                    queueName = messageType.ToQueueName();
                 }
 
-                this.channel.QueueDeclare(name, queueSettings.Durable, queueSettings.Exclusive, queueSettings.AutoDelete, queueSettings.Arguments);
+                this.channel.QueueDeclare(queueName, queueSettings.Durable, queueSettings.Exclusive, queueSettings.AutoDelete, queueSettings.Arguments);
 
 
-                var handlers = ((IEnumerable)this.container.Resolve(typeof(IEnumerable<>).MakeGenericType(typeof(IConsumer<>).MakeGenericType(messageType))));
 
-                foreach (var handler in handlers)
+                var exchangeSettings = messageType.GetTypeInfo().GetCustomAttribute<ExchangeSettingsAttribute>();
+
+                if (exchangeSettings == null)
                 {
-                    var handlerType = handler.GetType();
+                    exchangeSettings = new ExchangeSettingsAttribute();
+                }
 
-                    var methods = handlerType.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance);
+                var exchangeName = exchangeSettings.Name;
 
-                    Console.WriteLine("handlerType: {0}", handlerType.FullName);
+                if (string.IsNullOrEmpty(exchangeName))
+                {
+                    exchangeName = messageType.ToExchangeName();
+                }
 
-                    var consumer = new EventingBasicConsumer(this.channel);
+                var exchangeType = exchangeSettings.Type.ToString().ToLower();
 
-                    consumer.Received += (sender, model) =>
+                this.channel.ExchangeDeclare(exchangeName, exchangeType, exchangeSettings.Durable, exchangeSettings.AutoDelete, exchangeSettings.Arguments);
+
+
+
+                var route = messageType.GetTypeInfo().GetCustomAttribute<RouteSettingsAttribute>();
+
+                if (route != null)
+                {
+                    var queue = queueName;
+                    var exchange = route.Exchange ?? exchangeName;
+                    var routingKey = route.Key ?? messageType.ToRoutingKey();
+
+                    this.logger.Debug("Binding Queue: {Queue} Exchange: {Exchange} RoutingKey: {RoutingKey}", queueName, exchange, routingKey);
+
+                    this.channel.QueueBind(queue, exchange, routingKey, route.Arguments);
+                }
+
+                this.logger.Debug("Registering consumers for {MessageType}", messageType.FullName);
+
+                var consumers = this.GetConsumers(messageType);
+
+                foreach (var consumer in consumers)
+                {
+                    var consumerType = consumer.GetType();
+
+                    this.logger.Debug("Attaching {MessageType} to {ConsumerType}...", messageType.FullName, consumerType.FullName);
+
+                    var basicConsumer = new EventingBasicConsumer(this.channel);
+
+                    var method = consumerType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Instance);
+
+                    basicConsumer.Received += (sender, e) =>
                     {
-                        var body = Encoding.UTF8.GetString(model.Body);
+                        this.logger.Debug("Received {MessageType} from Exchange: {Exchange} RoutingKey: {RoutingKey}", messageType, e.Exchange, e.RoutingKey);
 
-                        var m = JsonConvert.DeserializeObject(body, messageType);
+                        method.Invoke(consumer, new[] {e});
 
-                        var method = handlerType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Instance);
-
-                        method.Invoke(handler, new [] { m });
-
-                        this.channel.BasicAck(model.DeliveryTag, false);
+                        this.channel.BasicAck(e.DeliveryTag, false);
                     };
 
-                    this.channel.BasicConsume(name, false, consumer);
+
+                    this.channel.BasicConsume(queueName, false, basicConsumer);
                 }
             }
+
+            this.logger.Debug("Bus started...");
         }
 
-        public void Publish<TMessage>(TMessage message) where TMessage : IMessage
+        public void Send<TMessage>(TMessage message) where TMessage : IMessage
         {
             this.EnsureConnected();
 
-            var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
+            var messageType = typeof(TMessage);
+
+            var route = typeof(TMessage).GetTypeInfo().GetCustomAttribute<RouteSettingsAttribute>();
+
+            var body = message.ToBytes();
 
             var properties = channel.CreateBasicProperties();
+            
+            properties.AppId = this.applicationSettings.Value.Role;
             properties.Persistent = true;
+            properties.CorrelationId = Guid.NewGuid().ToString();
+            properties.MessageId = Guid.NewGuid().ToString();
 
-            channel.BasicPublish(exchange: "",
-                routingKey: typeof(TMessage).FullName.ToLower(),
+            var exchange = route?.Exchange ?? messageType.ToExchangeName();
+            var routingKey = route?.Key ?? messageType.ToQueueName();
+
+            this.logger.Debug("Sending {Message} to Exchange: {Exchange} RoutingKey: {RoutingKey}", message, exchange, routingKey);
+
+            channel.BasicPublish(
+                exchange: exchange,
+                routingKey: routingKey,
                 basicProperties: properties,
-                body: body);
-        }
-    }
-
-    public interface IDurableConnection
-    {
-        IModel CreateModel();
-    }
-
-    public class DurableConnection : IDurableConnection
-    {
-        private readonly IConnectionFactory connectionFactory;
-
-        private IConnection connection = null;
-
-        public DurableConnection(IConnectionFactory connectionFactory)
-        {
-            this.connectionFactory = connectionFactory;
-        }
-
-        public IModel CreateModel()
-        {
-            this.EnsureConnected();
-            return this.connection.CreateModel();
-        }
-
-        private void EnsureConnected()
-        {
-            if (connection == null)
-            {
-                this.connection = this.connectionFactory.CreateConnection();
-            }           
+                body: body
+            );
         }
     }
 }

@@ -4,7 +4,9 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Prometheus.Core;
+using Serilog;
 
 namespace Prometheus.Daemon
 {
@@ -19,6 +21,10 @@ namespace Prometheus.Daemon
                 .AddEnvironmentVariables();
 
             var configuration = builder.Build();
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger();
 
             var services = new ServiceCollection();
 

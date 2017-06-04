@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Prometheus.Core;
 
 namespace Prometheus.Api
 {
@@ -17,8 +16,11 @@ namespace Prometheus.Api
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
                 .UseStartup<Startup>()
-                .UseApplicationInsights()
                 .Build();
+
+            var scheduler = host.Services.GetService<IBus>();
+
+            scheduler.Start();
 
             host.Run();
         }
