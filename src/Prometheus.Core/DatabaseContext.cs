@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Prometheus.Core.Entities;
+using Serilog;
 
 namespace Prometheus.Core
 {
@@ -54,8 +55,14 @@ namespace Prometheus.Core
 
             using (var context = new DatabaseContext(builder.Options))
             {
-                context.Database.EnsureCreated();
-                this.Data = context.Setting.ToDictionary(x => x.Name, x => x.Value);
+                try
+                {
+                    this.Data = context.Setting.ToDictionary(x => x.Name, x => x.Value);
+                }
+                catch (Exception e)
+                {
+                    Log.Logger.Error(e, "Unable to load database settings");
+                }
             }
         }
     }

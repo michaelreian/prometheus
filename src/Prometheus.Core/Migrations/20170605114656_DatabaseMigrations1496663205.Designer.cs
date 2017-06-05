@@ -8,8 +8,8 @@ using Prometheus.Core;
 namespace Prometheus.Core.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20170605113529_DatabaseMigrations1496662518")]
-    partial class DatabaseMigrations1496662518
+    [Migration("20170605114656_DatabaseMigrations1496663205")]
+    partial class DatabaseMigrations1496663205
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

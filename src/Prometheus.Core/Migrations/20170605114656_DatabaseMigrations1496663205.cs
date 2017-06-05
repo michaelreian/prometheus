@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Prometheus.Core.Migrations
 {
-    public partial class DatabaseMigrations1496662518 : Migration
+    public partial class DatabaseMigrations1496663205 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
