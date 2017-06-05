@@ -19,8 +19,6 @@ namespace Prometheus.Daemon
                 .AsSelf()
                 .AsImplementedInterfaces();
 
-            //builder.AddMediatR(assembly);
-
             base.Load(builder);
         }
     }

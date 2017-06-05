@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -23,6 +24,15 @@ namespace Prometheus.Core
             services.Configure<GeneralSettings>(options => { configuration.GetSection("General").Bind(options); });
             services.Configure<RabbitMQConnectionSettings>(options => { configuration.GetSection("RabbitMQConnection").Bind(options); });
             services.Configure<ApplicationSettings>(options => { configuration.GetSection("Application").Bind(options); });
+            services.AddDbContext<DatabaseContext>(options =>
+            {
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+            });
+        }
+
+        public static IConfigurationBuilder AddEntityFrameworkConfig(this IConfigurationBuilder builder, Action<DbContextOptionsBuilder> setup)
+        {
+            return builder.Add(new DatabaseConfigurationSource(setup));
         }
 
         public static string ToQueueName(this Type type)

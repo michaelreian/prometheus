@@ -1,4 +1,7 @@
 ﻿{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Port=5432;Database=prometheus;User Id=sa;Password=Qwe1234!;"
+  },
   "General": {
     "ApplicationName": "Prometheus",
     "ApplicationVersion": "0.0.1",

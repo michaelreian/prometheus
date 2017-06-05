@@ -1,5 +1,19 @@
 version: '2'
 services:
+  postgres:
+    image: "postgres:9.6.3"
+    hostname: "postgres"
+    environment:
+      POSTGRES_USER: "sa"
+      POSTGRES_PASSWORD: "Qwe1234!"
+      POSTGRES_DB: "prometheus"
+    ports:
+      - "5432:5432"
+  redis:
+    image: "redis:3.0.7"
+    hostname: "redis"
+    ports:
+      - "6379:6379"
   rabbit:
     image: "rabbitmq:3.6.10-management"
     hostname: "rabbit"
@@ -12,7 +26,7 @@ services:
       - "15672:15672"
       - "5672:5672"
   elk:
-    image: sebp/elk
+    image: "sebp/elk:540"
     ports:
       - "5601:5601"
       - "9200:9200"

@@ -2,14 +2,11 @@
 set -e
 
 OUTPUT=$(pwd)/artifacts/proxy
-echo hello
 
 if [ -d $OUTPUT ]
 then
     rm -rf $OUTPUT
 fi
-
-
 
 mkdir -p $OUTPUT
 

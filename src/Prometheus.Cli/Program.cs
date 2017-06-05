@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Threading;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Prometheus.Core;
 using Serilog;
 
-namespace Prometheus.Daemon
+namespace Prometheus.Cli
 {
     public class Program
     {
-        public static int Main(string[] args)
+        public static void Main(string[] args)
         {
             var settings = new ConfigurationBuilder()
                 .AddJsonFile("Settings.json", optional: false, reloadOnChange: true)
@@ -43,16 +41,15 @@ namespace Prometheus.Daemon
 
             var containerBuilder = new ContainerBuilder();
 
-            containerBuilder.RegisterModule<DaemonAutofacModule>();
+            containerBuilder.RegisterModule<CoreAutofacModule>();
 
             containerBuilder.Populate(services);
 
             var container = containerBuilder.Build();
 
-            var host = new ServiceHostBuilder()
-                .Build(container);
+            var databaseContext = container.Resolve<DatabaseContext>();
 
-            return host.Run();
+            databaseContext.Database.EnsureCreated();
         }
     }
 }

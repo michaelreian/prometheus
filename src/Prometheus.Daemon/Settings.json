@@ -1,4 +1,7 @@
 ﻿{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Port=5432;Database=prometheus;User Id=sa;Password=Qwe1234!;"
+  },
   "RabbitMQConnection": {
     "HostName": "localhost",
     "Port": 5672,

@@ -8,6 +8,7 @@ using Autofac.Extensions.DependencyInjection;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,11 +24,19 @@ namespace Prometheus.Api
     {
         public Startup(IHostingEnvironment env)
         {
+            var settings = new ConfigurationBuilder()
+                .AddJsonFile("Settings.json", optional: false, reloadOnChange: true)
+                .Build();
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("Settings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"Settings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
+                .AddEnvironmentVariables()
+                .AddEntityFrameworkConfig(options =>
+                {
+                    options.UseNpgsql(settings.GetConnectionString("DefaultConnection"));
+                });
 
             Configuration = builder.Build();
 
