@@ -18,9 +18,9 @@ namespace Prometheus.Api
                 .UseStartup<Startup>()
                 .Build();
 
-            var scheduler = host.Services.GetService<IBus>();
+            var bus = host.Services.GetService<IBus>();
 
-            scheduler.Start();
+            bus.Start();
 
             host.Run();
         }

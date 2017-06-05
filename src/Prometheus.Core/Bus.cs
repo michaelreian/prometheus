@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
+using MediatR;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Polly;
@@ -98,9 +99,9 @@ namespace Prometheus.Core
         public string Something { get; set; }
     }
 
-    public class DoSomethingCommandConsumer : Consumer<DoSomethingCommand>
+    public class DoSomethingCommandConsumer : IConsumer<DoSomethingCommand>
     {
-        public override void Handle(ConsumerContext<DoSomethingCommand> context)
+        public void Handle(ConsumerContext<DoSomethingCommand> context)
         {
             Console.WriteLine($"Doing {context.Message.Something}...");
         }
@@ -113,9 +114,9 @@ namespace Prometheus.Core
         public string Name { get; set; }
     }
 
-    public class HelloWorldEventConsumer : Consumer<HelloWorldEvent>
+    public class HelloWorldEventConsumer : IConsumer<HelloWorldEvent>
     {
-        public override void Handle(ConsumerContext<HelloWorldEvent> context)
+        public void Handle(ConsumerContext<HelloWorldEvent> context)
         {
             Console.WriteLine($"Received {context.Message.Name}. AppID: {context.Event.BasicProperties.AppId}");
         }
@@ -125,27 +126,12 @@ namespace Prometheus.Core
     {
         public DateTime Timestamp { get; set; }
     }
-
-    public class PingEventConsumer : Consumer<PingEvent>
+    public class PingEventConsumer : IConsumer<PingEvent>
     {
-        public override void Handle(ConsumerContext<PingEvent> context)
+        public void Handle(ConsumerContext<PingEvent> context)
         {
             Console.WriteLine($"Pinged in {DateTime.UtcNow.Subtract(context.Message.Timestamp)}");
         }
-    }
-
-    public abstract class Consumer<TMessage> : IConsumer<TMessage> where TMessage : IMessage
-    {
-        protected void Invoke(BasicDeliverEventArgs e)
-        {
-            var consumerContext = new ConsumerContext<TMessage>(e);
-            using (LogContext.PushProperty("ConsumerTag", e.ConsumerTag))
-            {
-                this.Handle(consumerContext);
-            }
-        }
-
-        public abstract void Handle(ConsumerContext<TMessage> context);
     }
 
     public interface IBus
@@ -157,16 +143,20 @@ namespace Prometheus.Core
     public class Bus : IBus
     {
         private readonly IConnectionFactory connectionFactory;
+        private readonly IMediator mediator;
         private readonly IOptions<ApplicationSettings> applicationSettings;
         private readonly IComponentContext container;
         private readonly ILogger logger;
 
+        
         private IConnection connection = null;
-        private IModel channel = null;
-
-        public Bus(IConnectionFactory connectionFactory, IOptions<ApplicationSettings> applicationSettings,
+        private IModel publishChannel = null;
+        
+        
+        public Bus(IConnectionFactory connectionFactory, IMediator mediator, IOptions<ApplicationSettings> applicationSettings,
             IComponentContext container, ILogger logger)
         {
+            this.mediator = mediator;
             this.connectionFactory = connectionFactory;
             this.applicationSettings = applicationSettings;
             this.container = container;
@@ -193,13 +183,8 @@ namespace Prometheus.Core
                     .Execute(() =>
                     {
                         this.connection = this.connectionFactory.CreateConnection();
+                        this.publishChannel = this.connection.CreateModel();
                     });
-            }
-
-            if (this.channel == null)
-            {
-                this.logger.Debug("Creating channel...");
-                this.channel = connection.CreateModel();
             }
         }
 
@@ -212,8 +197,7 @@ namespace Prometheus.Core
 
         private IEnumerable GetConsumers(Type message)
         {
-            return (IEnumerable) this.container.Resolve(
-                typeof(IEnumerable<>).MakeGenericType(typeof(IConsumer<>).MakeGenericType(message)));
+            return (IEnumerable) this.container.Resolve(typeof(IEnumerable<>).MakeGenericType(typeof(IConsumer<>).MakeGenericType(message)));
         }
 
 
@@ -245,9 +229,9 @@ namespace Prometheus.Core
                     queueName = messageType.ToQueueName();
                 }
 
-                this.channel.QueueDeclare(queueName, queueSettings.Durable, queueSettings.Exclusive, queueSettings.AutoDelete, queueSettings.Arguments);
-
-
+                var channel = this.connection.CreateModel();
+                
+                channel.QueueDeclare(queueName, queueSettings.Durable, queueSettings.Exclusive, queueSettings.AutoDelete, queueSettings.Arguments);
 
                 var exchangeSettings = messageType.GetTypeInfo().GetCustomAttribute<ExchangeSettingsAttribute>();
 
@@ -265,9 +249,7 @@ namespace Prometheus.Core
 
                 var exchangeType = exchangeSettings.Type.ToString().ToLower();
 
-                this.channel.ExchangeDeclare(exchangeName, exchangeType, exchangeSettings.Durable, exchangeSettings.AutoDelete, exchangeSettings.Arguments);
-
-
+                channel.ExchangeDeclare(exchangeName, exchangeType, exchangeSettings.Durable, exchangeSettings.AutoDelete, exchangeSettings.Arguments);
 
                 var route = messageType.GetTypeInfo().GetCustomAttribute<RouteSettingsAttribute>();
 
@@ -279,7 +261,7 @@ namespace Prometheus.Core
 
                     this.logger.Debug("Binding Queue: {Queue} Exchange: {Exchange} RoutingKey: {RoutingKey}", queueName, exchange, routingKey);
 
-                    this.channel.QueueBind(queue, exchange, routingKey, route.Arguments);
+                    channel.QueueBind(queue, exchange, routingKey, route.Arguments);
                 }
 
                 this.logger.Debug("Registering consumers for {MessageType}", messageType.FullName);
@@ -292,21 +274,20 @@ namespace Prometheus.Core
 
                     this.logger.Debug("Attaching {MessageType} to {ConsumerType}...", messageType.FullName, consumerType.FullName);
 
-                    var basicConsumer = new EventingBasicConsumer(this.channel);
-
-                    var method = consumerType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Instance);
+                    var basicConsumer = new EventingBasicConsumer(channel);
 
                     basicConsumer.Received += (sender, arguments) =>
                     {
-                        this.logger.Debug("Received {MessageType} from Exchange: {Exchange} RoutingKey: {RoutingKey}", messageType, arguments.Exchange, arguments.RoutingKey);
-
-                        method.Invoke(consumer, new[] {arguments});
-
-                        this.channel.BasicAck(arguments.DeliveryTag, false);
+                        this.mediator.Send(new NotifyConsumersCommand
+                        {
+                            Channel = channel,
+                            Event = arguments,
+                            Consumer = consumer,
+                            MessageType = messageType
+                        });
                     };
 
-
-                    this.channel.BasicConsume(queueName, false, basicConsumer);
+                    channel.BasicConsume(queueName, false, basicConsumer);
                 }
             }
 
@@ -323,7 +304,7 @@ namespace Prometheus.Core
 
             var body = message.ToBytes();
 
-            var properties = channel.CreateBasicProperties();
+            var properties = this.publishChannel.CreateBasicProperties();
             
             properties.AppId = this.applicationSettings.Value.Role;
             properties.Persistent = true;
@@ -335,7 +316,7 @@ namespace Prometheus.Core
 
             this.logger.Debug("Sending {Message} to Exchange: {Exchange} RoutingKey: {RoutingKey}", message, exchange, routingKey);
 
-            channel.BasicPublish(
+            this.publishChannel.BasicPublish(
                 exchange: exchange,
                 routingKey: routingKey,
                 basicProperties: properties,
