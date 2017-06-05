@@ -61,7 +61,7 @@ namespace Prometheus.Core
                 }
                 catch (Exception e)
                 {
-                    Log.Logger.Error(e, "Unable to load database settings");
+                    Console.WriteLine($"Warning! Unable to load database settings; { e.Message }");
                 }
             }
         }
