@@ -2,6 +2,7 @@
 using System.Threading;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -29,6 +30,8 @@ namespace Prometheus.Daemon
             var services = new ServiceCollection();
 
             services.AddSettings(configuration);
+
+            services.AddMediatR();
 
             var containerBuilder = new ContainerBuilder();
 

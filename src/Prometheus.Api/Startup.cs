@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -43,6 +44,8 @@ namespace Prometheus.Api
 
             services.AddSettings(Configuration);
 
+            services.AddMediatR();
+
             var builder = new ContainerBuilder();
 
             builder.Populate(services);
@@ -56,8 +59,8 @@ namespace Prometheus.Api
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IOptions<GeneralSettings> generalSettings)
         {
-            //loggerFactory.AddSerilog();
-            //loggerFactory.AddDebug();
+            app.UseMiddleware<AddCorrelationIdToLogContextMiddleware>();
+            app.UseMiddleware<AddCorrelationIdToResponseMiddleware>();
 
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, new SwaggerUiOwinSettings
             {

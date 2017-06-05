@@ -26,6 +26,20 @@
           "fileSizeLimitBytes": 1048576,
           "retainedFileCountLimit": 5
         }
+      },
+      {
+        "Name": "Elasticsearch",
+        "Args": {
+          "nodeUris": "http://localhost:9200",
+          "indexFormat": "prometheus-api-{0:yyyy.MM.dd}",
+          "batchPostingLimit": 50,
+          "period": 2,
+          "inlineFields": true,
+          "minimumLogEventLevel": "Debug",
+          "bufferBaseFilename": "/var/log/prometheus-api-buffer",
+          "bufferFileSizeLimitBytes": 1048576,
+          "bufferLogShippingInterval": 2000
+        }
       }
     ],
     "Enrich": [ "FromLogContext", "WithMachineName", "WithThreadId" ],

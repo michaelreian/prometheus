@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using Prometheus.Core;
@@ -11,10 +12,12 @@ namespace Prometheus.Api.Controllers
     public class TestController : Controller
     {
         private readonly IBus bus;
+        private readonly IMediator mediator;
 
-        public TestController(IBus bus)
+        public TestController(IBus bus, IMediator mediator)
         {
             this.bus = bus;
+            this.mediator = mediator;
         }
 
         [Route("hello"), HttpPost]
@@ -51,19 +54,16 @@ namespace Prometheus.Api.Controllers
         }
 
         [Route("health/check"), HttpGet]
-        public IActionResult HealthCheck()
+        public async Task<IActionResult> HealthCheck()
         {
-            return Ok(new
-            {
-                Online = true
-            });
+            return Ok(await this.mediator.Send(new GetHealthQuery()));
         }
 
         [Route(""), HttpGet]
         [SwaggerIgnore]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return this.HealthCheck();
+            return await this.HealthCheck();
         }
     }
 }

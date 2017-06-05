@@ -13,6 +13,7 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using Serilog;
+using Serilog.Context;
 
 namespace Prometheus.Core
 {
@@ -135,17 +136,17 @@ namespace Prometheus.Core
 
     public abstract class Consumer<TMessage> : IConsumer<TMessage> where TMessage : IMessage
     {
-
         protected void Invoke(BasicDeliverEventArgs e)
         {
             var consumerContext = new ConsumerContext<TMessage>(e);
-            this.Handle(consumerContext);
+            using (LogContext.PushProperty("ConsumerTag", e.ConsumerTag))
+            {
+                this.Handle(consumerContext);
+            }
         }
 
         public abstract void Handle(ConsumerContext<TMessage> context);
     }
-
-
 
     public interface IBus
     {
@@ -295,13 +296,13 @@ namespace Prometheus.Core
 
                     var method = consumerType.GetMethod("Invoke", BindingFlags.NonPublic | BindingFlags.Instance);
 
-                    basicConsumer.Received += (sender, e) =>
+                    basicConsumer.Received += (sender, arguments) =>
                     {
-                        this.logger.Debug("Received {MessageType} from Exchange: {Exchange} RoutingKey: {RoutingKey}", messageType, e.Exchange, e.RoutingKey);
+                        this.logger.Debug("Received {MessageType} from Exchange: {Exchange} RoutingKey: {RoutingKey}", messageType, arguments.Exchange, arguments.RoutingKey);
 
-                        method.Invoke(consumer, new[] {e});
+                        method.Invoke(consumer, new[] {arguments});
 
-                        this.channel.BasicAck(e.DeliveryTag, false);
+                        this.channel.BasicAck(arguments.DeliveryTag, false);
                     };
 
 
