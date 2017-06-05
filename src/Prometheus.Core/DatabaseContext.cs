@@ -1,13 +1,24 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Prometheus.Core.Entities;
 
 namespace Prometheus.Core
 {
     public class DatabaseContext : DbContext
     {
+        public DbSet<Setting> Setting { get; set; }
+
         public DatabaseContext(DbContextOptions options) : base(options)
         {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Setting>().HasKey(t => t.Name);
         }
     }
 
@@ -44,6 +55,7 @@ namespace Prometheus.Core
             using (var context = new DatabaseContext(builder.Options))
             {
                 context.Database.EnsureCreated();
+                this.Data = context.Setting.ToDictionary(x => x.Name, x => x.Value);
             }
         }
     }
