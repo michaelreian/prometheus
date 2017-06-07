@@ -6,7 +6,7 @@ namespace Prometheus.Api
 {
     public class AddCorrelationIdToResponseMiddleware
     {
-        private const string CorrelationIdHeaderName = "X-Correlation-Id";
+        private const string CorrelationIdHeaderName = "X-Correlation-ID";
         private readonly RequestDelegate _next;
 
         public AddCorrelationIdToResponseMiddleware(RequestDelegate next)
@@ -36,7 +36,7 @@ namespace Prometheus.Api
 
         public Task Invoke(HttpContext context)
         {
-            using (LogContext.PushProperty("CorrelationId", context.TraceIdentifier))
+            using (LogContext.PushProperty("CorrelationID", context.TraceIdentifier))
             {
                 return _next(context);
             }

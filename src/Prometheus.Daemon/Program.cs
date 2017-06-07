@@ -14,13 +14,26 @@ namespace Prometheus.Daemon
 {
     public class Program
     {
+        public Program()
+        {
+        }
+
         public static int Main(string[] args)
         {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+            if (string.IsNullOrEmpty(environment))
+            {
+                environment = "Development";
+            }
+            
             var settings = new ConfigurationBuilder()
+                .AddJsonFile($"Settings.{environment}.json", optional: true)
                 .AddJsonFile("Settings.json", optional: false, reloadOnChange: true)
                 .Build();
 
             var builder = new ConfigurationBuilder()
+                .AddJsonFile($"Settings.{environment}.json", optional: true)
                 .AddJsonFile("Settings.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables()
                 .AddCommandLine(args)
