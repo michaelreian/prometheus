@@ -1,0 +1,35 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "project": {
+    "name": "prometheus"
+  },
+  "apps": [{
+    "root": "src",
+    "outDir": "wwwroot/dist",
+    "assets": [
+      "assets",
+      "favicon.ico"
+    ],
+    "index": "index.html",
+    "main": "main.ts",
+    "polyfills": "polyfills.ts",
+    "tsconfig": "../tsconfig.json",
+    "prefix": "app",
+    "styles": [
+      "../node_modules/bootstrap/dist/css/bootstrap.css",
+      "../node_modules/font-awesome/css/font-awesome.css",
+      "style.scss"
+    ],
+    "scripts": [],
+    "environmentSource": "environments/environment.ts",
+    "environments": {
+      "dev": "environments/environment.ts",
+      "prod": "environments/environment.production.ts"
+    }
+  }],
+
+  "defaults": {
+    "styleExt": "css",
+    "component": {}
+  }
+}
