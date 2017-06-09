@@ -3,39 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Prometheus.Core.Usenet;
+using Group = Prometheus.Core.Usenet.Group;
 
-namespace Prometheus.Core
+namespace Prometheus.Core.Usenet
 {
-    public class UsenetSettings
-    {
-        public string Host { get; set; }
-        public int Port { get; set; }
-        public bool UseSsl { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public int Connections { get; set; }
-    }
-
-    public class Overview
-    {
-        public long ArticleNo { get; set; }
-        public string Subject { get; set; }
-        public string From { get; set; }
-        public DateTime Date { get; set; }
-        public string References { get; set; }
-        public string MessageID { get; set; }
-        public int Bytes { get; set; }
-        public int Lines { get; set; }
-        public string XRef { get; set; }
-    }
-
-    public interface IUsenetClient : IDisposable
-    {
-        Task<Group> GetGroup(string groupName);
-        Task<List<Overview>> GetOverviews(string groupName, long first, long last);
-        Task<List<string>> GetHeaders();
-    }
-
     public class UsenetClient : IUsenetClient
     {
         private readonly UsenetSettings usenetSettings;
