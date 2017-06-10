@@ -14,7 +14,6 @@ module.exports = {
     filename: '[name].js',
     chunkFilename: '[id].chunk.js'
   },
-
   resolve: {
     extensions: ['.ts', '.tsx', '.js']
   },
@@ -44,6 +43,10 @@ module.exports = {
       {
         test: /\.(png|jpe?g|gif|svg|woff|woff2|ttf|eot|ico)$/,
         use: 'file-loader?name=assets/[name].[hash].[ext]'
+      },
+      {
+        test: require.resolve("pace-js"),
+        loader: "imports-loader?define=>false"
       }
     ]
   },
@@ -68,7 +71,9 @@ module.exports = {
   ],
 
   devServer: {
-    historyApiFallback: true,
+    historyApiFallback: {
+      index: '/'
+    },
     stats: 'minimal'
   }
 };
