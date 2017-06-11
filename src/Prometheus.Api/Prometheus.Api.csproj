@@ -11,6 +11,7 @@
     <PackageReference Include="Autofac" Version="4.6.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.1.0" />
     <PackageReference Include="MediatR" Version="3.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Cors" Version="1.1.2" />
     <PackageReference Include="Npgsql" Version="3.2.3" />
     <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="5.3.0" /> 
      <PackageReference Include="ServiceStack.Text.Core" Version="1.0.41" />

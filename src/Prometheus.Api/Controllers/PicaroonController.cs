@@ -1,37 +1,44 @@
 ﻿using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Prometheus.Core;
 using Prometheus.Core.Picaroon;
 
 namespace Prometheus.Api.Controllers
 {
+    [Route("api/v1/picaroon")]
     public class PicaroonController : Controller
     {
         private readonly IMediator mediator;
+        private readonly IMemoryCache cache;
 
-        public PicaroonController(IMediator mediator)
+        public PicaroonController(IMediator mediator, IMemoryCache cache)
         {
             this.mediator = mediator;
+            this.cache = cache;
         }
 
-        [HttpGet("api/v1/torrents/browse")]
-        public async Task<IActionResult> Browse(string baseUrl = "https://unblockedbay.info", string categoryID = null)
+        [HttpGet("search")]
+        public async Task<IActionResult> Search(GetTorrentsQuery query)
         {
-            var results = await this.mediator.Send(new GetTorrentsQuery { BaseUrl = baseUrl, CategoryID = categoryID });
+            var results = await this.mediator.Send(query);
 
             return Ok(results);
         }
 
-        [HttpGet("api/v1/torrents/categories")]
-        public async Task<IActionResult> GetCategories(string baseUrl = "https://unblockedbay.info")
+        [HttpGet("categories")]
+        public async Task<IActionResult> GetCategories(string proxyUrl)
         {
-            var categories = await this.mediator.Send(new GetCategoriesQuery { BaseUrl = baseUrl });
-
+            var categories = await this.cache.GetOrCreateAsync($"categories-{proxyUrl}", async entry =>
+            {
+                return await this.mediator.Send(new GetCategoriesQuery { BaseUrl = proxyUrl });
+            });
+            
             return Ok(categories);
         }
 
-        [HttpGet("api/v1/torrents/proxies")]
+        [HttpGet("proxies")]
         public async Task<IActionResult> GetProxies()
         {
             var proxies = await this.mediator.Send(new GetProxiesQuery());
@@ -39,10 +46,13 @@ namespace Prometheus.Api.Controllers
             return Ok(proxies);
         }
 
-        [HttpGet("api/v1/torrents/proxies/valid")]
-        public async Task<IActionResult> GetValidProxy()
+        [HttpGet("proxy")]
+        public async Task<IActionResult> GetProxy()
         {
-            var uri = await this.mediator.Send(new GetProxyQuery());
+            var uri = await this.cache.GetOrCreateAsync("proxy", async entry =>
+            {
+                return await this.mediator.Send(new GetProxyQuery());
+            });
 
             return Ok(uri);
         }

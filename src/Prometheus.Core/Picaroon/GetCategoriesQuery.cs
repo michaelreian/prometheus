@@ -54,6 +54,20 @@ namespace Prometheus.Core.Picaroon
 
             var categories = new List<Category>();
 
+            categories.Add(new Category
+            {
+                ID = "0",
+                Name = "Any",
+                Subcategories = new List<Category>()
+                {
+                    new Category
+                    {
+                        ID = "0",
+                        Name = "Any"
+                    }
+                }
+            });
+
             var categoryNodes = document.QuerySelectorAll("td.categoriesContainer dl dt a");
 
             var subcategoryNodes = document.QuerySelectorAll("select#category optgroup");
@@ -65,6 +79,12 @@ namespace Prometheus.Core.Picaroon
                 category.ID = ParseCategoryID(categoryNode.GetAttributeValue("href", null));
                 category.Name = categoryNode.InnerText;
 
+                category.Subcategories.Add(new Category
+                {
+                    ID = category.ID,
+                    Name = $"Any {category.Name}"
+                });
+                
                 foreach (var subcategoryNode in subcategoryNodes.Where(x => x.GetAttributeValue("label", null) == category.Name).SelectMany(x => x.QuerySelectorAll("option")))
                 {
                     var subcategory = new Category();

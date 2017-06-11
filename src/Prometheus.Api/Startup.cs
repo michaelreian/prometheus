@@ -49,7 +49,11 @@ namespace Prometheus.Api
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
+
             services.AddMvc();
+
+            services.AddMemoryCache();
 
             services.AddSettings(Configuration);
 
@@ -70,6 +74,9 @@ namespace Prometheus.Api
         {
             app.UseMiddleware<AddCorrelationIdToLogContextMiddleware>();
             app.UseMiddleware<AddCorrelationIdToResponseMiddleware>();
+
+            app.UseCors(builder =>
+                builder.WithOrigins("http://localhost:8080"));
 
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, new SwaggerUiOwinSettings
             {

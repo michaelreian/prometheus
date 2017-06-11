@@ -12,7 +12,7 @@ namespace Prometheus.Core.Picaroon
     {
         public string Keywords { get; set; }
         public string CategoryID { get; set; }
-        public string BaseUrl { get; set; }
+        public string ProxyUrl { get; set; }
         public int Page { get; set; } = 0;
         public Direction Direction { get; set; } = Direction.Descending;
         public OrderBy OrderBy { get; set; } = OrderBy.Uploaded;
@@ -37,7 +37,7 @@ namespace Prometheus.Core.Picaroon
 
         public async Task<GetTorrentsResponse> Handle(GetTorrentsQuery message)
         {
-            using (var restClient = new RestClient(message.BaseUrl))
+            using (var restClient = new RestClient(message.ProxyUrl))
             {
                 string resource;
 
