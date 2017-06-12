@@ -27,6 +27,14 @@ namespace Prometheus.Api.Controllers
             return Ok(results);
         }
 
+        [HttpGet("detail")]
+        public async Task<IActionResult> Detail(GetTorrentDetailQuery query)
+        {
+            var results = await this.mediator.Send(query);
+
+            return Ok(results);
+        }
+
         [HttpGet("categories")]
         public async Task<IActionResult> GetCategories(string proxyUrl)
         {

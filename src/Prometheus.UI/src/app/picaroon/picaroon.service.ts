@@ -5,6 +5,8 @@ const UrlAssembler = require('safe-url-assembler');
 @Injectable()
 export class PicaroonService {
 
+  initialized: boolean = false;
+
   baseUrl: string = "http://localhost:5000/api";
   api = UrlAssembler(this.baseUrl).segment("/v1/picaroon");
   proxyUrl: string;
@@ -12,9 +14,13 @@ export class PicaroonService {
   constructor() { }
 
   public async initialize() {
-    var resource = this.api.segment("/proxy");
-    var response = await axios.get(resource.toString());
-    this.proxyUrl = response.data;
+    if(!this.initialized) {
+      console.log('Initializing PicaroonService');
+      var resource = this.api.segment("/proxy");
+      var response = await axios.get(resource.toString());
+      this.proxyUrl = response.data;
+      this.initialized = true;
+    }
   }
 
   public async getCategories() {

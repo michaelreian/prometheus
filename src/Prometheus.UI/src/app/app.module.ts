@@ -13,9 +13,13 @@ import { SideBarComponent } from './side-bar/side-bar.component';
 import { FooterComponent } from './footer/footer.component';
 import { HomeComponent } from './home/home.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
-import { PicaroonComponent } from './picaroon/picaroon.component';
 
+import { PicaroonComponent } from './picaroon/picaroon.component';
 import { PicaroonService } from './picaroon/picaroon.service';
+import { PicaroonSearchComponent } from './picaroon/picaroon-search.component';
+import { PicaroonSearchBarComponent } from './picaroon/picaroon-search-bar.component';
+import { PicaroonBrowseComponent } from './picaroon/picaroon-browse.component';
+import { PicaroonDetailComponent } from './picaroon/picaroon-detail.component';
 
 const appRoutes: Routes = [
   {
@@ -25,6 +29,18 @@ const appRoutes: Routes = [
   {
     path: 'picaroon',
     component: PicaroonComponent
+  },
+  {
+    path: 'picaroon/browse',
+    component: PicaroonSearchComponent
+  },
+  {
+    path: 'picaroon/search',
+    component: PicaroonSearchComponent
+  },
+  {
+    path: 'picaroon/detail/:id',
+    component: PicaroonDetailComponent
   },
   {
     path: '',
@@ -42,7 +58,11 @@ const appRoutes: Routes = [
     FooterComponent,
     HomeComponent,
     PageNotFoundComponent,
-    PicaroonComponent
+    PicaroonComponent,
+    PicaroonSearchComponent,
+    PicaroonSearchBarComponent,
+    PicaroonBrowseComponent,
+    PicaroonDetailComponent
   ],
   imports: [
     BsDropdownModule.forRoot(),

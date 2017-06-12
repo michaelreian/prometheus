@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -8,6 +9,153 @@ using MediatR;
 
 namespace Prometheus.Core.Picaroon
 {
+    public class GetTorrentDetailQuery : IRequest<TorrentDetail>
+    {
+        public string TorrentID { get; set; }
+        public string ProxyUrl { get; set; }
+
+    }
+
+    public class TorrentDetail
+    {
+        public string TorrentID { get; set; }
+        public string Description { get; set; }
+        public string Name { get; set; }
+        public string Magnet { get; set; }
+        public List<TorrentComment> Comments { get; set; } = new List<TorrentComment>();
+
+        public string SubcategoryID { get; set; }
+        public string FileCount { get; set; }
+        public string Size { get; set; }
+        public string Uploaded { get; set; }
+        public string Uploader { get; set; }
+        public string Seeders { get; set; }
+        public string Leechers { get; set; }
+        public string CommentCount { get; set; }
+        public string Hash { get; set; }
+    }
+
+    public class TorrentComment
+    {
+        public string User { get; set; }
+        public string UserID { get; set; }
+        public string Commented { get; set; }
+        public string Text { get; set; }
+    }
+
+    public class GetTorrentDetailQueryHandler : IAsyncRequestHandler<GetTorrentDetailQuery, TorrentDetail>
+    {
+        private readonly IMediator mediator;
+
+        public GetTorrentDetailQueryHandler(IMediator mediator)
+        {
+            this.mediator = mediator;
+        }
+
+        public async Task<TorrentDetail> Handle(GetTorrentDetailQuery message)
+        {
+            using (var restClient = new RestClient(message.ProxyUrl))
+            {
+                var resource = "torrent/{torrentID}";
+
+                var request = new RestRequest(HttpMethod.Get, resource);
+                request.AddParameter("torrentID", message.TorrentID, ParameterType.UrlSegment);
+
+                var response = await restClient.Execute<string>(request);
+
+                var html = await response.GetContent();
+
+                return this.Parse(html, message.TorrentID);
+            }
+        }
+
+        private TorrentDetail Parse(string html, string torrentID)
+        {
+            var document = new HtmlAgilityPack.HtmlDocument()
+            {
+                OptionFixNestedTags = true,
+                OptionAutoCloseOnEnd = true
+            };
+
+            document.LoadHtml(html);
+
+            var detailsSection = document.QuerySelector("#detailsframe");
+
+            if (detailsSection == null)
+            {
+                return null;
+            }
+            
+            var response = new TorrentDetail();
+            response.TorrentID = torrentID;
+            response.Name = detailsSection.QuerySelector("#title")?.InnerText;
+            response.Description = detailsSection.QuerySelector(".nfo pre")?.InnerHtml;
+
+            response.Magnet = detailsSection.QuerySelector(".download a")?.Attributes["href"]?.Value;
+
+            var commentNodes = detailsSection.QuerySelectorAll("#comments div[id^=\"comment-\"]");
+
+            foreach (var commentNode in commentNodes)
+            {
+                response.Comments.Add(new TorrentComment
+                {
+                    User = commentNode.QuerySelector("p.byline a")?.InnerText,
+                    UserID = commentNode.QuerySelector("p.byline a")?.Attributes["href"]?.Value,
+                    Text = commentNode.QuerySelector(".comment")?.InnerHtml,
+                    Commented = commentNode.QuerySelector("p.byline")?.LastChild?.InnerText
+                });
+            }
+
+            var dts = detailsSection.QuerySelectorAll("dl[class^=\"col\"] dt");
+
+            foreach (var dt in dts)
+            {
+                var dd = dt.NextSibling?.NextSibling;
+                if (dd != null)
+                {
+                    if (dt.InnerText.Equals("Type:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        response.SubcategoryID = dd.QuerySelector("a")?.Attributes["href"]?.Value;
+                    }
+                    else if (dt.InnerText.Equals("Files:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        response.FileCount = dd.QuerySelector("a")?.InnerText;
+                    }
+                    else if (dt.InnerText.Equals("Size:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        response.Size = dd.InnerText;
+                    }
+                    else if (dt.InnerText.Equals("Uploaded:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        response.Uploaded = dd.InnerText;
+                    }
+                    else if (dt.InnerText.Equals("By:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        response.Uploader = dd.InnerText;
+                    }
+                    else if (dt.InnerText.Equals("Seeders:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        response.Seeders = dd.InnerText;
+                    }
+                    else if (dt.InnerText.Equals("Leechers:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        response.Leechers = dd.InnerText;
+                    }
+                    else if (dt.InnerText.Equals("Comments", StringComparison.OrdinalIgnoreCase))
+                    {
+                        response.CommentCount = dd.QuerySelector("span#NumComments")?.InnerText;
+                    }
+                    else if (dt.InnerText.Equals("Info Hash:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        response.Hash = dd.InnerText;
+                    }
+                }
+            }
+
+            return response;
+        }
+    }
+
     public class GetTorrentsQuery : IRequest<GetTorrentsResponse>
     {
         public string Keywords { get; set; }

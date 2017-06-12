@@ -1,0 +1,58 @@
+<div class="wrapper wrapper-content animated fadeInRight">
+
+  <app-picaroon-search-bar (ready)="onReady($event)"></app-picaroon-search-bar>
+
+  <div class="row" *ngIf="searchResults != null">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+
+          <div class="project-list">
+
+            <table class="table table-hover">
+              <tbody>
+                <tr *ngFor="let torrent of searchResults.torrents">
+                  <td class="project-status text-center">
+                    <button (click)="browse(torrent.categoryID, torrent.categoryID)" type="button" class="btn btn-outline btn-default btn-xs btn-block m-b-xs">{{ torrent.category }}</button>
+                    <button (click)="browse(torrent.categoryID, torrent.subcategoryID)" type="button" class="btn btn-outline btn-default btn-xs btn-block">{{ torrent.subcategory }}</button>
+                  </td>
+                  <td class="project-title">
+                    <a [routerLink]="['/picaroon/detail', torrent.torrentID]">{{ torrent.name }}</a>
+                    <br/>
+                    <small>Uploaded {{ torrent.uploaded }} by {{ torrent.uploader }}</small>
+                  </td>
+                  <td class="project-completion">
+                    <span class="text-center">{{ torrent.size }}</span>
+                  </td>
+                  <td class="project-actions">
+                    <h3 class="text-center">{{ torrent.seeders }}</h3>
+                  </td>
+                  <td class="project-actions">
+                    <h3 class="text-center">{{ torrent.leechers }}</h3>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+
+          <div class="text-center">
+            <div class="btn-group">
+              <button class="btn btn-white" type="button"><i class="fa fa-chevron-left"></i></button>
+              <button class="btn btn-white">1</button>
+              <button class="btn btn-white  active">2</button>
+              <button class="btn btn-white">3</button>
+              <button class="btn btn-white">4</button>
+              <button class="btn btn-white">5</button>
+              <button class="btn btn-white">6</button>
+              <button class="btn btn-white">7</button>
+              <button class="btn btn-white" type="button"><i class="fa fa-chevron-right"></i> </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
