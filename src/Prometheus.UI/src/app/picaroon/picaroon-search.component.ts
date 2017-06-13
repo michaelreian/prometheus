@@ -13,7 +13,8 @@ export class PicaroonSearchComponent implements OnInit {
 
   constructor(private service: PicaroonService, private router: Router) { }
 
-  ngOnInit() {
+  async ngOnInit() {
+    await this.service.initialize();
   }
 
   async onReady(e) {

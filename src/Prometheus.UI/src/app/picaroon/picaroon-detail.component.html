@@ -2,11 +2,36 @@
 
   <app-picaroon-search-bar></app-picaroon-search-bar>
 
-  <div class="row">
+  <div class="row" *ngIf="detail != null">
 
     <div class="col-sm-12">
-      {{ torrentID }}
+      <h1>{{ detail.name }}</h1>
+
+      <pre [innerHTML]="detail.description">
+      </pre>
+
+      <div class="social-footer">
+                                  <div class="social-comment" *ngFor="let comment of detail.comments">
+                                      <a href="" class="pull-left">
+                                          <img alt="image" src="https://www.gravatar.com/avatar/00000000000000000000000000000000">
+                                      </a>
+                                      <div class="media-body">
+                                          <a href="#">
+                                              {{ comment.user }}
+                                          </a>
+                                          <span [innerHTML]="comment.text"></span>
+                                          <br/>
+                                          <a href="#" class="small"><i class="fa fa-thumbs-up"></i> 26 Like this!</a> -
+                                          <small class="text-muted">{{ comment.commented }}</small>
+                                      </div>
+                                  </div>
+
+
+
+                              </div>
+
     </div>
+
 
   </div>
 

@@ -12,14 +12,21 @@ export class PicaroonDetailComponent implements OnInit {
   sub: any;
 
   torrentID: string;
+  detail: any;
 
   constructor(private service: PicaroonService, private router: Router, private route: ActivatedRoute) { }
 
-  ngOnInit() {
+  async ngOnInit() {
+    await this.service.initialize();
+
     this.sub = this.route
       .params
-      .subscribe(params => {
+      .subscribe(async params => {
         this.torrentID = params['id'];
+
+        this.detail = await this.service.getDetail(this.torrentID);
+
+        console.log(this.detail);
       });
   }
 

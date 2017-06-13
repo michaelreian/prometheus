@@ -37,6 +37,20 @@ export class PicaroonService {
     .query("page", page)
     .query("direction", direction)
     .query("orderBy", orderBy);
+
+console.log(this.proxyUrl, resource.toString());
+
+    var response = await axios.get(resource);
+    return response.data;
+  }
+
+  public async getDetail(torrentID: string) {
+    var resource = this.api.segment("/detail")
+    .query("proxyUrl", this.proxyUrl)
+    .query("torrentID", torrentID);
+
+console.log(this.proxyUrl, resource.toString());
+
     var response = await axios.get(resource);
     return response.data;
   }
