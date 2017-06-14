@@ -1,38 +1,61 @@
+<app-picaroon-search-bar></app-picaroon-search-bar>
+
 <div class="wrapper wrapper-content animated fadeInRight">
 
-  <app-picaroon-search-bar></app-picaroon-search-bar>
 
   <div class="row" *ngIf="detail != null">
 
     <div class="col-sm-12">
       <h1>{{ detail.name }}</h1>
 
-      <pre [innerHTML]="detail.description">
-      </pre>
+      <a [href]="detail.magnet | safeUrl">Magnet</a>
 
-      <div class="social-footer">
-                                  <div class="social-comment" *ngFor="let comment of detail.comments">
-                                      <a href="" class="pull-left">
-                                          <img alt="image" src="https://www.gravatar.com/avatar/00000000000000000000000000000000">
-                                      </a>
-                                      <div class="media-body">
-                                          <a href="#">
-                                              {{ comment.user }}
-                                          </a>
-                                          <span [innerHTML]="comment.text"></span>
-                                          <br/>
-                                          <a href="#" class="small"><i class="fa fa-thumbs-up"></i> 26 Like this!</a> -
-                                          <small class="text-muted">{{ comment.commented }}</small>
-                                      </div>
-                                  </div>
+
+      <div class="row">
+        <div class="col-sm-12">
+          <pre [innerHTML]="detail.description"></pre>
+        </div>
+      </div>
 
 
 
-                              </div>
+      <div class="row">
+
+
+        <div class="col-sm-12">
+          <div class="feed-activity-list">
+
+            <div class="feed-element" *ngFor="let comment of detail.comments">
+                <a href="#" class="pull-left">
+                    <img alt="image" class="img-circle" src="https://www.gravatar.com/avatar/00000000000000000000000000000000">
+                </a>
+                <div class="media-body ">
+                    <small class="pull-right">{{ comment.commented }}</small>
+                    <strong>{{ comment.user }}</strong><br/>
+                    <small class="text-muted">{{ comment.commented }}</small>
+                    <div class="well" [innerHTML]="comment.text">
+                        Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
+                        Over the years, sometimes by accident, sometimes on purpose (injected humour and the like).
+                    </div>
+                </div>
+            </div>
+
+
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+
 
     </div>
 
 
-  </div>
+
+
+</div>
 
 </div>

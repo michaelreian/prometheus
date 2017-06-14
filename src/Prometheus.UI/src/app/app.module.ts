@@ -20,6 +20,7 @@ import { PicaroonSearchComponent } from './picaroon/picaroon-search.component';
 import { PicaroonSearchBarComponent } from './picaroon/picaroon-search-bar.component';
 import { PicaroonBrowseComponent } from './picaroon/picaroon-browse.component';
 import { PicaroonDetailComponent } from './picaroon/picaroon-detail.component';
+import { SafeUrlPipe } from './safe-url.pipe';
 
 const appRoutes: Routes = [
   {
@@ -62,7 +63,8 @@ const appRoutes: Routes = [
     PicaroonSearchComponent,
     PicaroonSearchBarComponent,
     PicaroonBrowseComponent,
-    PicaroonDetailComponent
+    PicaroonDetailComponent,
+    SafeUrlPipe
   ],
   imports: [
     BsDropdownModule.forRoot(),

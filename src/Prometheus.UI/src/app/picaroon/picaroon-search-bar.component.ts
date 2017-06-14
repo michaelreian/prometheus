@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, EventEmitter, Input, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PicaroonService } from './picaroon.service';
 import * as _ from "lodash";
@@ -12,15 +12,15 @@ export class PicaroonSearchBarComponent implements OnInit {
 
   @Output() ready: EventEmitter<any> = new EventEmitter(true);
 
-  sub: any;
+  subscription: any;
 
   categories: any[];
   subcategories: any[];
 
   keywords: string;
   page: number;
-  direction: string;
-  orderBy: string;
+  @Input() sortedBy: string;
+  @Input() orderedBy: string;
 
   selectedCategory: string;
   selectedSubcategory: string;
@@ -50,15 +50,15 @@ export class PicaroonSearchBarComponent implements OnInit {
       }]
     });
 
-    this.sub = this.route
+    this.subscription = this.route
       .queryParams
       .subscribe(async params => {
         this.keywords = params['k'];
         this.selectedCategory = params['c'] || 0;
         this.selectedSubcategory = params['s'] || 0;
         this.page = +params['p'] || 0;
-        this.direction = params['d'] || "Ascending";
-        this.orderBy = params['o'] || "Uploaded";
+        this.sortedBy = params['d'] || "Ascending";
+        this.orderedBy = params['o'] || "Uploaded";
 
         this.updateSubcategories(this.selectedCategory, this.selectedSubcategory);
 
@@ -67,8 +67,8 @@ export class PicaroonSearchBarComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    if(this.sub != null) {
-      this.sub.unsubscribe();
+    if(this.subscription != null) {
+      this.subscription.unsubscribe();
     }
 
   }
@@ -93,8 +93,8 @@ export class PicaroonSearchBarComponent implements OnInit {
         c: this.selectedCategory,
         s: this.selectedSubcategory,
         p: this.page,
-        d: this.direction,
-        o: this.orderBy
+        d: this.sortedBy,
+        o: this.orderedBy
       }
     });
   }

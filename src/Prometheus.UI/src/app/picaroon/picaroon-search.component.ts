@@ -10,6 +10,10 @@ import { PicaroonService } from './picaroon.service';
 export class PicaroonSearchComponent implements OnInit {
 
   searchResults = null;
+  loading: boolean = false;
+
+  orderedBy: string;
+  sortedBy: string;
 
   constructor(private service: PicaroonService, private router: Router) { }
 
@@ -18,13 +22,12 @@ export class PicaroonSearchComponent implements OnInit {
   }
 
   async onReady(e) {
-    this.searchResults = null;
+    this.sortedBy = e.sortedBy;
+    this.orderedBy = e.orderedBy;
 
-    var results = await this.service.search(e.keywords, e.selectedSubcategory, e.page, e.direction, e.orderBy);
+    var results = await this.service.search(e.keywords, e.selectedSubcategory, e.page, e.sortedBy, e.orderedBy);
 
     this.searchResults = results;
-
-    console.log(this.searchResults);
   }
 
   browse(categoryID: string, subcategoryID: string) {
@@ -34,6 +37,14 @@ export class PicaroonSearchComponent implements OnInit {
         s: subcategoryID
       }
     });
+  }
+
+  orderBy(orderedBy: string) {
+    this.orderedBy = orderedBy;
+  }
+
+  sortBy(sortedBy: string) {
+    this.sortedBy = sortedBy;
   }
 
 }

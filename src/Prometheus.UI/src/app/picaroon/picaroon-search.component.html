@@ -1,17 +1,50 @@
-<div class="wrapper wrapper-content animated fadeInRight">
+<app-picaroon-search-bar (ready)="onReady($event)" [sortedBy]="sortedBy" [orderedBy]="orderedBy"></app-picaroon-search-bar>
 
-  <app-picaroon-search-bar (ready)="onReady($event)"></app-picaroon-search-bar>
+<div class="wrapper wrapper-content">
 
-  <div class="row" *ngIf="searchResults != null">
+
+  <div class="row animated fadeIn" *ngIf="searchResults != null">
     <div class="col-lg-12">
       <div class="ibox">
         <div class="ibox-content">
+
+          <div class="sk-spinner sk-spinner-double-bounce">
+            <div class="sk-double-bounce1"></div>
+            <div class="sk-double-bounce2"></div>
+          </div>
+
+          <div class="row m-b-md">
+            <div class="col-lg-12">
+              <div class="btn-group pull-right" dropdown>
+                <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
+                  {{ orderedBy }}  <span class="caret"></span>
+                </button>
+                <ul *dropdownMenu class="dropdown-menu" role="menu">
+                  <li role="menuitem"><a class="dropdown-item" (click)="orderBy('Ascending')">Ascending</a></li>
+                  <li role="menuitem"><a class="dropdown-item" (click)="orderBy('Descending')">Descending</a></li>
+                </ul>
+              </div>
+              <div class="btn-group pull-right" dropdown>
+                <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
+                  Ordered by {{ sortedBy }}  <span class="caret"></span>
+                </button>
+                <ul *dropdownMenu class="dropdown-menu" role="menu">
+                  <li role="menuitem"><a class="dropdown-item" (click)="sortBy('Uploaded')">Uploaded</a></li>
+                  <li role="menuitem"><a class="dropdown-item" (click)="sortBy('Size')">Size</a></li>
+                  <li role="menuitem"><a class="dropdown-item" (click)="sortBy('Uploader')">Uploader</a></li>
+                  <li role="menuitem"><a class="dropdown-item" (click)="sortBy('Seeders')">Seeders</a></li>
+                  <li role="menuitem"><a class="dropdown-item" (click)="sortBy('Leechers')">Leechers</a></li>
+                  <li role="menuitem"><a class="dropdown-item" (click)="sortBy('Name')">Name</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
 
           <div class="project-list">
 
             <table class="table table-hover">
               <tbody>
-                <tr *ngFor="let torrent of searchResults.torrents">
+                <tr *ngFor="let torrent of searchResults.torrents" class="animated fadeIn">
                   <td class="project-status text-center">
                     <button (click)="browse(torrent.categoryID, torrent.categoryID)" type="button" class="btn btn-outline btn-default btn-xs btn-block m-b-xs">{{ torrent.category }}</button>
                     <button (click)="browse(torrent.categoryID, torrent.subcategoryID)" type="button" class="btn btn-outline btn-default btn-xs btn-block">{{ torrent.subcategory }}</button>

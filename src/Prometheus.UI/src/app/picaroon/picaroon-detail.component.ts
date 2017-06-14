@@ -9,7 +9,7 @@ import { PicaroonService } from './picaroon.service';
 })
 export class PicaroonDetailComponent implements OnInit {
 
-  sub: any;
+  subscription: any;
 
   torrentID: string;
   detail: any;
@@ -19,7 +19,7 @@ export class PicaroonDetailComponent implements OnInit {
   async ngOnInit() {
     await this.service.initialize();
 
-    this.sub = this.route
+    this.subscription = this.route
       .params
       .subscribe(async params => {
         this.torrentID = params['id'];
@@ -31,8 +31,8 @@ export class PicaroonDetailComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    if(this.sub != null) {
-      this.sub.unsubscribe();
+    if(this.subscription != null) {
+      this.subscription.unsubscribe();
     }
   }
 
