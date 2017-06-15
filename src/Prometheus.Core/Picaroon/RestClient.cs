@@ -26,14 +26,18 @@ namespace Prometheus.Core.Picaroon
 
         public RestClient()
         {
-            this.httpClient = new HttpClient();
+            this.httpClient = new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(5)
+            };
         }
 
         public RestClient(Uri baseAddress)
         {
             this.httpClient = new HttpClient
             {
-                BaseAddress = baseAddress
+                BaseAddress = baseAddress,
+                Timeout = TimeSpan.FromSeconds(5)
             };
         }
 

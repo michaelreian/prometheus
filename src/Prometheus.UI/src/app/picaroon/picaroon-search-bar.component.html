@@ -1,24 +1,24 @@
 <div class="row wrapper border-bottom white-bg page-heading animated fadeInDown">
 
-  <div class="col-lg-4 m-b-xs m-t-lg">
+  <div class="col-lg-4 m-b-sm m-t-lg">
     <input type="text" placeholder="Enter keywords" class="form-control input-lg" [(ngModel)]="keywords">
   </div>
 
-  <div class="col-lg-3 m-b-xs m-t-lg">
+  <div class="col-lg-3 m-b-sm m-t-lg">
     <select class="form-control input-lg" [(ngModel)]="selectedCategory" (change)="onCategoryChange($event)">
       <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
     </select>
   </div>
 
 
-  <div class="col-lg-3 m-b-xs m-t-lg">
+  <div class="col-lg-3 m-b-sm m-t-lg">
     <select class="form-control input-lg" [(ngModel)]="selectedSubcategory">
       <option *ngFor="let subcategory of subcategories" [value]="subcategory.id">{{ subcategory.name }}</option>
     </select>
   </div>
 
 
-  <div class="col-lg-2 m-b-xs m-t-lg">
+  <div class="col-lg-2 m-b-sm m-t-lg">
     <button class="btn btn-lg btn-primary btn-block" type="submit" (click)="search()">Search</button>
   </div>
 

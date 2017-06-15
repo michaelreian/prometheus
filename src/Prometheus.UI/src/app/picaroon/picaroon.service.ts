@@ -15,7 +15,7 @@ export class PicaroonService {
 
   public async initialize() {
     if(!this.initialized) {
-      console.log('Initializing PicaroonService');
+      console.log('Initializing PicaroonService...');
       var resource = this.api.segment("/proxy");
       var response = await axios.get(resource.toString());
       this.proxyUrl = response.data;
@@ -38,8 +38,6 @@ export class PicaroonService {
     .query("direction", direction)
     .query("orderBy", orderBy);
 
-console.log(this.proxyUrl, resource.toString());
-
     var response = await axios.get(resource);
     return response.data;
   }
@@ -48,8 +46,6 @@ console.log(this.proxyUrl, resource.toString());
     var resource = this.api.segment("/detail")
     .query("proxyUrl", this.proxyUrl)
     .query("torrentID", torrentID);
-
-console.log(this.proxyUrl, resource.toString());
 
     var response = await axios.get(resource);
     return response.data;

@@ -2,39 +2,55 @@
 
 <div class="wrapper wrapper-content">
 
+  <div class="row" *ngIf="error != null">
+    <div class="col-lg-12">
+      <div class="alert alert-danger animated pulse">
+        <h4><strong>Error: </strong> {{ error.message }}</h4>
+        <small>{{ error.correlationID }}</small>
+        <br/>
+        <a (click)="refresh()">Refresh</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row animated fadeInUp" *ngIf="searchResults == null && loading">
+    <div class="col-lg-12 sk-loading">
+      <div class="sk-spinner sk-spinner-double-bounce">
+        <div class="sk-double-bounce1"></div>
+        <div class="sk-double-bounce2"></div>
+      </div>
+    </div>
+  </div>
 
   <div class="row animated fadeIn" *ngIf="searchResults != null">
     <div class="col-lg-12">
       <div class="ibox">
-        <div class="ibox-content">
+        <div class="ibox-content" [ngClass]="{ 'sk-loading': loading }">
 
-          <div class="sk-spinner sk-spinner-double-bounce">
-            <div class="sk-double-bounce1"></div>
-            <div class="sk-double-bounce2"></div>
-          </div>
+
 
           <div class="row m-b-md">
             <div class="col-lg-12">
               <div class="btn-group pull-right" dropdown>
-                <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
-                  {{ orderedBy }}  <span class="caret"></span>
+                <button dropdownToggle type="button" class="btn btn-default dropdown-toggle btn-outline">
+                  {{ sortedBy }}  <span class="caret"></span>
                 </button>
                 <ul *dropdownMenu class="dropdown-menu" role="menu">
-                  <li role="menuitem"><a class="dropdown-item" (click)="orderBy('Ascending')">Ascending</a></li>
-                  <li role="menuitem"><a class="dropdown-item" (click)="orderBy('Descending')">Descending</a></li>
+                  <li role="menuitem"><a class="dropdown-item" (click)="sortBy('Ascending')">Ascending</a></li>
+                  <li role="menuitem"><a class="dropdown-item" (click)="sortBy('Descending')">Descending</a></li>
                 </ul>
               </div>
-              <div class="btn-group pull-right" dropdown>
-                <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
-                  Ordered by {{ sortedBy }}  <span class="caret"></span>
+              <div class="btn-group pull-right m-r-sm" dropdown>
+                <button dropdownToggle type="button" class="btn btn-default dropdown-toggle btn-outline">
+                  Ordered by {{ orderedBy }}  <span class="caret"></span>
                 </button>
                 <ul *dropdownMenu class="dropdown-menu" role="menu">
-                  <li role="menuitem"><a class="dropdown-item" (click)="sortBy('Uploaded')">Uploaded</a></li>
-                  <li role="menuitem"><a class="dropdown-item" (click)="sortBy('Size')">Size</a></li>
-                  <li role="menuitem"><a class="dropdown-item" (click)="sortBy('Uploader')">Uploader</a></li>
-                  <li role="menuitem"><a class="dropdown-item" (click)="sortBy('Seeders')">Seeders</a></li>
-                  <li role="menuitem"><a class="dropdown-item" (click)="sortBy('Leechers')">Leechers</a></li>
-                  <li role="menuitem"><a class="dropdown-item" (click)="sortBy('Name')">Name</a></li>
+                  <li role="menuitem"><a class="dropdown-item" (click)="orderBy('Uploaded')">Uploaded</a></li>
+                  <li role="menuitem"><a class="dropdown-item" (click)="orderBy('Size')">Size</a></li>
+                  <li role="menuitem"><a class="dropdown-item" (click)="orderBy('Uploader')">Uploader</a></li>
+                  <li role="menuitem"><a class="dropdown-item" (click)="orderBy('Seeders')">Seeders</a></li>
+                  <li role="menuitem"><a class="dropdown-item" (click)="orderBy('Leechers')">Leechers</a></li>
+                  <li role="menuitem"><a class="dropdown-item" (click)="orderBy('Name')">Name</a></li>
                 </ul>
               </div>
             </div>

@@ -90,6 +90,8 @@ namespace Prometheus.Api
                 ValidateSpecification = true,
             });
 
+            app.UseMiddleware<ErrorHandlingMiddleware>();
+
             app.UseMvc();
         }
     }

@@ -185,17 +185,26 @@ namespace Prometheus.Core.Picaroon
 
         public async Task<GetTorrentsResponse> Handle(GetTorrentsQuery message)
         {
+            if (message.CategoryID == "500")
+            {
+                throw new Exception("You are not allowed to see this.");
+            }
+            
             using (var restClient = new RestClient(message.ProxyUrl))
             {
                 string resource;
 
-                if (string.IsNullOrEmpty(message.Keywords))
+                if (string.IsNullOrEmpty(message.Keywords) && message.CategoryID != "0")
                 {
                     resource = "browse/{categoryID}/{page}/{sortID}";
                 }
-                else
+                else if (!string.IsNullOrEmpty(message.Keywords))
                 {
                     resource = "search/{keywords}/{page}/{sortID}/{categoryID}";
+                }
+                else
+                {
+                    resource = "top/all";
                 }
 
                 var sortID = GetSortID(message.OrderBy, message.Direction);

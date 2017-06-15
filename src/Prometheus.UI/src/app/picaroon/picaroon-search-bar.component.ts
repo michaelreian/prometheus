@@ -57,7 +57,7 @@ export class PicaroonSearchBarComponent implements OnInit {
         this.selectedCategory = params['c'] || 0;
         this.selectedSubcategory = params['s'] || 0;
         this.page = +params['p'] || 0;
-        this.sortedBy = params['d'] || "Ascending";
+        this.sortedBy = params['d'] || "Descending";
         this.orderedBy = params['o'] || "Uploaded";
 
         this.updateSubcategories(this.selectedCategory, this.selectedSubcategory);
@@ -87,14 +87,16 @@ export class PicaroonSearchBarComponent implements OnInit {
   }
 
   search() {
+    var isSortable = !(this.selectedSubcategory === '0' && (this.keywords == null || this.keywords === ''));
+
     this.router.navigate(['/picaroon/search'], {
       queryParams: {
         k: this.keywords,
         c: this.selectedCategory,
         s: this.selectedSubcategory,
-        p: this.page,
-        d: this.sortedBy,
-        o: this.orderedBy
+        p: isSortable ? this.page : null,
+        d: isSortable ? this.sortedBy : null,
+        o: isSortable ? this.orderedBy : null
       }
     });
   }
