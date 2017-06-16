@@ -5,6 +5,8 @@ machine:
 dependencies:
   pre:
     - npm install -g webpack
+  post:
+    - sudo pip install awscli
 
 compile:
   override:
@@ -13,3 +15,9 @@ compile:
 general:
   artifacts:
     - "artifacts/ui"
+
+deployment:
+  prod:
+    branch: master
+    commands:
+      - aws s3 sync /home/ubuntu/prometheus/artifacts/ui s3://prometheus-ui --delete
