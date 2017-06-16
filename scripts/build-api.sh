@@ -11,3 +11,9 @@ fi
 dotnet restore
 
 dotnet publish ./src/Prometheus.Api/Prometheus.Api.csproj --output $OUTPUT
+
+pushd ./src/Prometheus.Api
+
+cp Dockerfile $OUTPUT
+
+popd
