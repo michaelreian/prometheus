@@ -1,0 +1,15 @@
+machine:
+  node:
+    version: 6.1.0
+
+dependencies:
+  pre:
+    - npm install -g webpack
+
+compile:
+  override:
+    - ./scripts/build-ui.sh
+
+general:
+  artifacts:
+    - "artifacts/ui"
