@@ -12,6 +12,10 @@ compile:
   override:
     - ./scripts/build-ui.sh
 
+test:
+  override:
+    - echo "testing... #not-testing"
+
 general:
   artifacts:
     - "artifacts/ui"
