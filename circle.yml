@@ -14,7 +14,7 @@ compile:
 
 test:
   override:
-    - echo "testing... #not-testing"
+    - echo "Not really testing..."
 
 general:
   artifacts:
