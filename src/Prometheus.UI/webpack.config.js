@@ -12,7 +12,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'wwwroot'),
     publicPath: '/',
-    filename: '[name].js',
+    filename: '[name].[hash].js',
     chunkFilename: '[id].chunk.js'
   },
   resolve: {
@@ -55,7 +55,7 @@ module.exports = {
   plugins: [
     new webpack.ContextReplacementPlugin(/angular(\\|\/)core(\\|\/)@angular/, path.join(__dirname, './Client')),
 
-    new ExtractTextPlugin('[name].css'),
+    new ExtractTextPlugin('[name].[hash].css'),
 
     new webpack.ProvidePlugin({
       jQuery: 'jquery',
