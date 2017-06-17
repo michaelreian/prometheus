@@ -20,4 +20,4 @@ deployment:
   prod:
     branch: master
     commands:
-      - aws s3 sync /home/ubuntu/prometheus/artifacts/ui s3://prometheus-ui --delete
+      - aws s3 sync /home/ubuntu/prometheus/artifacts/ui s3://prometheus.mikesoft.com.au --delete
