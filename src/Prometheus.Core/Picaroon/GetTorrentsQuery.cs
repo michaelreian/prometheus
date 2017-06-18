@@ -27,7 +27,7 @@ namespace Prometheus.Core.Picaroon
         public string SubcategoryID { get; set; }
         public string FileCount { get; set; }
         public string Size { get; set; }
-        public string Uploaded { get; set; }
+        public DateTime? Uploaded { get; set; }
         public string Uploader { get; set; }
         public string Seeders { get; set; }
         public string Leechers { get; set; }
@@ -39,7 +39,7 @@ namespace Prometheus.Core.Picaroon
     {
         public string User { get; set; }
         public string UserID { get; set; }
-        public string Commented { get; set; }
+        public DateTime? Commented { get; set; }
         public string Text { get; set; }
     }
 
@@ -88,8 +88,8 @@ namespace Prometheus.Core.Picaroon
             
             var response = new TorrentDetail();
             response.TorrentID = torrentID;
-            response.Name = detailsSection.QuerySelector("#title")?.InnerText;
-            response.Description = detailsSection.QuerySelector(".nfo pre")?.InnerHtml;
+            response.Name = detailsSection.QuerySelector("#title")?.InnerText?.Trim();
+            response.Description = detailsSection.QuerySelector(".nfo pre")?.InnerHtml?.Trim();
 
             response.Magnet = detailsSection.QuerySelector(".download a")?.Attributes["href"]?.Value;
 
@@ -101,8 +101,8 @@ namespace Prometheus.Core.Picaroon
                 {
                     User = commentNode.QuerySelector("p.byline a")?.InnerText,
                     UserID = commentNode.QuerySelector("p.byline a")?.Attributes["href"]?.Value,
-                    Text = commentNode.QuerySelector(".comment")?.InnerHtml,
-                    Commented = commentNode.QuerySelector("p.byline")?.LastChild?.InnerText
+                    Text = commentNode.QuerySelector(".comment")?.InnerHtml?.Trim(),
+                    Commented = this.ParseTimestamp(commentNode.QuerySelector("p.byline")?.LastChild?.InnerText)
                 });
             }
 
@@ -127,7 +127,7 @@ namespace Prometheus.Core.Picaroon
                     }
                     else if (dt.InnerText.Equals("Uploaded:", StringComparison.OrdinalIgnoreCase))
                     {
-                        response.Uploaded = dd.InnerText;
+                        response.Uploaded = this.ParseTimestamp(dd.InnerText);
                     }
                     else if (dt.InnerText.Equals("By:", StringComparison.OrdinalIgnoreCase))
                     {
@@ -147,12 +147,39 @@ namespace Prometheus.Core.Picaroon
                     }
                     else if (dt.InnerText.Equals("Info Hash:", StringComparison.OrdinalIgnoreCase))
                     {
-                        response.Hash = dd.InnerText;
+                        response.Hash = dd.InnerText?.Trim();
                     }
                 }
             }
 
             return response;
+        }
+
+        private DateTime? ParseTimestamp(string s)
+        {
+            var sanitized = string.Empty;
+            foreach (var c in s)
+            {
+                if (char.IsDigit(c) || c == '-' || c == ':')
+                {
+                    sanitized += c;
+                }
+                else
+                {
+                    sanitized += ' ';
+                }
+            }
+            while (sanitized.Contains("  "))
+            {
+                sanitized = sanitized.Replace("  ", " ");
+            }
+            sanitized = sanitized.Trim().Trim(':').Trim();
+            DateTime dateTime;
+            if (DateTime.TryParse(sanitized, out dateTime))
+            {
+                return dateTime;
+            }
+            return null;
         }
     }
 
