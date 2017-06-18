@@ -1,3 +1,7 @@
+[![CircleCI](https://circleci.com/gh/michaelreian/prometheus/tree/master.svg?style=svg)](https://circleci.com/gh/michaelreian/prometheus/tree/master)
+
+[![Build Status](https://travis-ci.org/michaelreian/prometheus.svg?branch=master)](https://travis-ci.org/michaelreian/prometheus)
+
 # README #
 
 This README would normally document whatever steps are necessary to get your application up and running.
