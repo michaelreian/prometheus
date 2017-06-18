@@ -310,7 +310,7 @@ namespace Prometheus.Core.Picaroon
                     var items = description.Split(',').Select(x => x.Trim()).ToList();
 
                     torrent.Uploaded = items.Where(x => x.StartsWith("Uploaded ")).Select(x => x.Replace("Uploaded ", string.Empty).Trim()).FirstOrDefault();
-                    torrent.Size = items.Where(x => x.StartsWith("Size ")).Select(x => x.Replace("Size ", string.Empty).Trim()).FirstOrDefault();
+                    torrent.Size = this.SanitizeSize(items.Where(x => x.StartsWith("Size ")).Select(x => x.Replace("Size ", string.Empty).Trim()).FirstOrDefault());
                     torrent.Uploader = items.Where(x => x.StartsWith("ULed by ")).Select(x => x.Replace("ULed by ", string.Empty).Trim()).FirstOrDefault();
                 }
 
@@ -321,6 +321,19 @@ namespace Prometheus.Core.Picaroon
             }
 
             return response;
+        }
+
+        private string SanitizeSize(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+            {
+                return s;
+            }
+
+            s = s.Replace("GiB", "G");
+            s = s.Replace("MiB", "M");
+            
+            return s.Trim();
         }
 
         private string GetValue(Regex regex, string name, string text)

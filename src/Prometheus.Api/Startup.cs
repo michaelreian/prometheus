@@ -76,7 +76,11 @@ namespace Prometheus.Api
             app.UseMiddleware<AddCorrelationIdToResponseMiddleware>();
 
             app.UseCors(builder =>
-                builder.WithOrigins("http://localhost:8080"));
+                builder.WithOrigins(
+                    "http://localhost:8080", 
+                    "http://prometheus.mikesoft.com.au", 
+                    "https://prometheus.mikesoft.com.au"
+            ));
 
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, new SwaggerUiOwinSettings
             {
