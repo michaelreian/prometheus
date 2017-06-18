@@ -1,6 +1,17 @@
 <app-picaroon-search-bar></app-picaroon-search-bar>
 
-<div class="row animated fadeInUp" *ngIf="detail == null && loading">
+<div class="row" *ngIf="error != null">
+  <div class="col-lg-12">
+    <div class="alert alert-danger animated pulse">
+      <h4><strong>Error: </strong> {{ error.message }}</h4>
+      <small>{{ error.correlationID }}</small>
+      <br/>
+      <a (click)="refresh()">Refresh</a>
+    </div>
+  </div>
+</div>
+
+<div class="m-t-lg row animated fadeInUp" *ngIf="detail == null && loading && error == null">
   <div class="col-lg-12 sk-loading">
     <div class="sk-spinner sk-spinner-double-bounce">
       <div class="sk-double-bounce1"></div>

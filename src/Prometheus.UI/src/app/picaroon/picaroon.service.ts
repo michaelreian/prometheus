@@ -15,11 +15,15 @@ export class PicaroonService {
 
   public async initialize() {
     if(!this.initialized) {
-      console.log('Initializing PicaroonService...');
-      var resource = this.api.segment("/proxy");
-      var response = await axios.get(resource.toString());
-      this.proxyUrl = response.data;
-      this.initialized = true;
+      try {
+        console.log('Initializing PicaroonService...');
+        var resource = this.api.segment("/proxy");
+        var response = await axios.get(resource.toString());
+        this.proxyUrl = response.data;
+        this.initialized = true;
+      } catch(exception) {
+        this.initialized = false;
+      }
     }
   }
 
