@@ -19,8 +19,6 @@ export class PicaroonDetailComponent implements OnInit {
   loading: boolean = true;
   error: any = null;
 
-  parameters: any;
-
   constructor(private service: PicaroonService, private router: Router, private route: ActivatedRoute) { }
 
   async ngOnInit() {
@@ -30,9 +28,6 @@ export class PicaroonDetailComponent implements OnInit {
     this.subscription = this.route
       .params
       .subscribe(async params => {
-
-        this.parameters = params;
-
         try {
           this.loading = true;
 
@@ -67,11 +62,8 @@ export class PicaroonDetailComponent implements OnInit {
   }
 
   refresh() {
-    var parameters = _.cloneDeep(this.parameters);
-    _.merge(parameters, { refresh: uuid() });
-    console.log(parameters);
-    this.router.navigate(['/picaroon/detail'], {
-      queryParams: parameters
+    this.router.navigate(['/picaroon/detail', this.torrentID], {
+      queryParams: { refresh: uuid() }
     });
   }
 }
