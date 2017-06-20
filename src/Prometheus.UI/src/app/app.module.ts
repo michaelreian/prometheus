@@ -21,6 +21,9 @@ import { PicaroonSearchBarComponent } from './picaroon/picaroon-search-bar.compo
 import { PicaroonBrowseComponent } from './picaroon/picaroon-browse.component';
 import { PicaroonDetailComponent } from './picaroon/picaroon-detail.component';
 import { SafeUrlPipe } from './safe-url.pipe';
+import { CallbackComponent } from './callback/callback.component';
+
+import { AuthService } from './auth.service';
 
 const appRoutes: Routes = [
   {
@@ -64,7 +67,8 @@ const appRoutes: Routes = [
     PicaroonSearchBarComponent,
     PicaroonBrowseComponent,
     PicaroonDetailComponent,
-    SafeUrlPipe
+    SafeUrlPipe,
+    CallbackComponent
   ],
   imports: [
     BsDropdownModule.forRoot(),
@@ -73,7 +77,7 @@ const appRoutes: Routes = [
     FormsModule,
     HttpModule
   ],
-  providers: [PicaroonService],
+  providers: [AuthService, PicaroonService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PicaroonService } from './picaroon/picaroon.service';
+import { AuthService } from '../auth.service';
 declare var jQuery: any;
 
 @Component({
