@@ -10,7 +10,7 @@ dependencies:
 
 compile:
   override:
-    - ./scripts/build-ui.sh
+    - ./scripts/build-ui.sh $CIRCLE_BUILD_NUM
 
 test:
   override:

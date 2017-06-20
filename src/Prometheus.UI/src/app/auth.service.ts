@@ -18,8 +18,7 @@ export class AuthService {
 
     constructor(public router: Router) { }
 
-
-    private getBaseUrl(): string {
+  private getBaseUrl(): string {
        return location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
      }
     public login(): void {

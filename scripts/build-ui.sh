@@ -2,6 +2,7 @@
 set -e
 
 OUTPUT=$(pwd)/artifacts/ui
+export BUILD_NUMBER=${1:-0}
 
 if [ -d $OUTPUT ]
 then
@@ -12,7 +13,7 @@ pushd ./src/Prometheus.UI
 
 npm install
 
-webpack --output-path $OUTPUT
+webpack --output-path $OUTPUT --env.BUILD_NUMBER $BUILD_NUMBER
 
 cp Dockerfile $OUTPUT
 cp nginx.conf $OUTPUT
