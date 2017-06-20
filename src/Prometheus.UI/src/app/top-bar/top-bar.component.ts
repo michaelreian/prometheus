@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../auth.service';
 declare var jQuery: any;
 
 @Component({
@@ -8,7 +9,9 @@ declare var jQuery: any;
 })
 export class TopBarComponent implements OnInit {
 
-  constructor() { }
+  constructor(public auth: AuthService) {
+    auth.handleAuthentication();
+  }
 
   ngOnInit() {
   }

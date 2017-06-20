@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import 'rxjs/add/operator/filter';
-import auth0 from 'auth0-js';
+
+const auth0 = require('auth0-js');
 
 @Injectable()
 export class AuthService {
@@ -12,7 +13,7 @@ export class AuthService {
         responseType: 'token id_token',
         audience: 'https://mikesoft.au.auth0.com/userinfo',
         redirectUri: this.getBaseUrl() + '/callback',
-        scope: 'openid email'
+        scope: 'openid profile email'
     });
 
     constructor(public router: Router) { }
