@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-OUTPUT=./artifacts/api
+OUTPUT=./artifacts
 
 if [ -d $OUTPUT ]
 then
