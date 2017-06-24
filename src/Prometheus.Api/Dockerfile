@@ -4,8 +4,8 @@ WORKDIR /app
 
 COPY . .
 
-ENV ASPNETCORE_URLS http://+:5000
+ENV ASPNETCORE_URLS http://+:8088
 
-EXPOSE 5000
+EXPOSE 8088
 
 ENTRYPOINT ["dotnet", "Prometheus.Api.dll"]
