@@ -10,6 +10,8 @@ fi
 
 docker build -t build-image -f ./scripts/Dockerfile.api.build .
 
-docker create --name build-cont build-image
+BUILD_CONTAINER=$(docker create build-image)
 
-docker cp build-cont:/workspace/artifacts/api $OUTPUT
+docker cp $BUILD_CONTAINER:/workspace/artifacts/api $OUTPUT
+
+docker rm $BUILD_CONTAINER
