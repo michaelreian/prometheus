@@ -81,12 +81,7 @@ namespace Prometheus.Api
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
 
-            app.UseCors(builder =>
-                builder.WithOrigins(
-                    "http://localhost:8080", 
-                    "http://prometheus.mikesoft.com.au", 
-                    "https://prometheus.mikesoft.com.au"
-            ));
+            app.UseCors(builder => builder.AllowAnyOrigin());
 
             app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, new SwaggerUiOwinSettings
             {
