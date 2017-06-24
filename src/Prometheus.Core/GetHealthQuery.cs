@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Options;
 
@@ -23,7 +24,10 @@ namespace Prometheus.Core
             return await Task.FromResult(new
             {
                 Online = true,
-                Version = this.settings.Value.ApplicationVersion
+                Version = this.settings.Value.ApplicationVersion,
+                Timestamp = DateTime.UtcNow,
+                Environment.ProcessorCount,
+                Environment.MachineName
             });
         }
     }
