@@ -1,0 +1,7 @@
+FROM microsoft/aspnetcore-build
+
+WORKDIR /workspace
+
+COPY . .
+
+RUN ./scripts/build-api.sh
