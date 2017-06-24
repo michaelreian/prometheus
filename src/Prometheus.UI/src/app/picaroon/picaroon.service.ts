@@ -7,7 +7,7 @@ export class PicaroonService {
 
   initialized: boolean = false;
 
-  baseUrl: string = "http://api.prometheus.mikesoft.com.au:8088/api";
+  baseUrl: string = "https://api.mikesoft.com.au/api";
   api = UrlAssembler(this.baseUrl).segment("/v1/picaroon");
   proxyUrl: string;
 
