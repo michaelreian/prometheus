@@ -8,6 +8,8 @@ then
     rm -rf $OUTPUT
 fi
 
+mkdir -p $OUTPUT
+
 docker build -t build-image -f ./scripts/Dockerfile.api.build .
 
 BUILD_CONTAINER=$(docker create build-image)
