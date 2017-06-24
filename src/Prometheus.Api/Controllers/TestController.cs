@@ -48,7 +48,7 @@ namespace Prometheus.Api.Controllers
             this.bus.Send(new DoSomethingCommand
             {
                 Something = something
-            });
+            }); 
 
             return Ok();
         }

@@ -1,18 +1,30 @@
 ﻿using System.Threading.Tasks;
 using MediatR;
+using Microsoft.Extensions.Options;
 
 namespace Prometheus.Core
 {
-    public class GetHealthQuery : IRequest<bool>
+    public class GetHealthQuery : IRequest<object>
     {
         
     }
 
-    public class GetHealthQueryHandler : IAsyncRequestHandler<GetHealthQuery, bool>
+    public class GetHealthQueryHandler : IAsyncRequestHandler<GetHealthQuery, object>
     {
-        public async Task<bool> Handle(GetHealthQuery message)
+        private readonly IOptions<GeneralSettings> settings;
+
+        public GetHealthQueryHandler(IOptions<GeneralSettings> settings)
         {
-            return await Task.FromResult(true);
+            this.settings = settings;
+        }
+
+        public async Task<object> Handle(GetHealthQuery message)
+        {
+            return await Task.FromResult(new
+            {
+                Online = true,
+                Version = this.settings.Value.ApplicationVersion
+            });
         }
     }
 }

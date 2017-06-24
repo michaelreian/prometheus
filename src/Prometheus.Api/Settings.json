@@ -1,6 +1,6 @@
 ﻿{
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Port=5432;Database=prometheus;User Id=sa;Password=Qwe1234!;"
+    "DefaultConnection": "Server=postgres_db;Port=5432;Database=prometheus_db;User Id=sa;Password=Qwe1234!;"
   },
   "General": {
     "ApplicationName": "Prometheus",
@@ -9,7 +9,7 @@
     "SwaggerUiRoute": "/swagger"
   },
   "RabbitMQConnection": {
-    "HostName": "localhost",
+    "HostName": "rabbitmq",
     "Port": 5672,
     "UserName": "rabbitmq",
     "Password": "rabbitmq"
