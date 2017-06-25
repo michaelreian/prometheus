@@ -1,9 +1,9 @@
 ﻿{
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Port=5432;Database=prometheus;User Id=sa;Password=Qwe1234!;"
+    "DefaultConnection": "Server=postgres_db;Port=5432;Database=prometheus_db;User Id=sa;Password=Qwe1234!;"
   },
   "RabbitMQConnection": {
-    "HostName": "localhost",
+    "HostName": "rabbitmq",
     "Port": 5672,
     "UserName": "rabbitmq",
     "Password": "rabbitmq"
@@ -31,8 +31,8 @@
       {
         "Name": "Elasticsearch",
         "Args": {
-          "nodeUris": "http://localhost:9200",
-          "indexFormat": "prometheus-daemon-{0:yyyy.MM.dd}",
+          "nodeUris": "http://elasticsearch:9200",
+          "indexFormat": "mikesoft-prometheus-daemon-{0:yyyy.MM.dd}",
           "batchPostingLimit": 50,
           "period": 2,
           "inlineFields": true,

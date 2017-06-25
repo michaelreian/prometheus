@@ -33,8 +33,8 @@
       {
         "Name": "Elasticsearch",
         "Args": {
-          "nodeUris": "http://localhost:9200",
-          "indexFormat": "prometheus-api-{0:yyyy.MM.dd}",
+          "nodeUris": "http://elasticsearch:9200",
+          "indexFormat": "mikesoft-prometheus-api-{0:yyyy.MM.dd}",
           "batchPostingLimit": 50,
           "period": 2,
           "inlineFields": true,

@@ -3,6 +3,7 @@ var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
     entry: {
@@ -76,6 +77,24 @@ module.exports = {
 
         new webpack.DefinePlugin({
             APP_VERSION: JSON.stringify("0.0." + (process.env.BUILD_NUMBER || "0")),
+        }),
+
+        new BundleAnalyzerPlugin({
+            analyzerMode: 'static',
+            reportFilename: 'report.html'
+        }),
+
+        new webpack.optimize.UglifyJsPlugin({
+            beautify: false,
+            mangle: {
+                screw_ie8: true,
+                keep_fnames: true
+            },
+            compress: {
+                warnings: false,
+                screw_ie8: true
+            },
+            comments: false
         })
     ],
 
